@@ -1,0 +1,189 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+
+    <div style="border: 1px solid; display: inline-block; ">
+        @for (int riga = 0; riga < 8; riga++)
+        {
+            <div style="display:flex">
+                @for (int col = 0; col < 8; col++)
+                {
+                    <div class="@($"pos{riga}-{col}") divq" posRiga="@riga" posColonna="@col" style="background-color: @((riga+col) % 2 == 0 ? "black" : "white")">
+                        <img class="img" style="display:none" />
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+    @for (int ii = 0; ii < 2; ii++)
+    {
+        <div style="border: 1px solid; display: inline-block; ">
+            @for (int i = 0; i < 6; i++)
+            {
+                <div class="divq parcheggio" tipo="@i" colore="@ii" style="background-color: white">
+                    <img src="~/Content/Images/@(i)@(ii).png" class="img" style="" />
+                </div>
+            }
+        </div>
+    }
+
+    <div>
+        <button onclick="NuovaPartita()">Nuova partita</button>
+        <button onclick="NuovaScacchiera()">Scacchiera vuota</button>
+        <button onclick="MuoviPezzo()">Muovi pezzo</button>
+    </div>
+
+</div>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            $(".divq").click(function (e) {
+
+                if (e.ctrlKey) {
+                    EliminaPezzo($(this).attr("posriga"), $(this).attr("poscolonna"));
+                }
+                else if ($(this).attr("poscolonna") == undefined) {
+                    $(this).addClass("selezionato");
+                } else {
+                    var init = $(".selezionato")[0];
+                    if (init == undefined) {
+                        $(this).addClass("selezionato");
+                        MosseDisponibili($(this).attr("posriga"), $(this).attr("poscolonna"));
+                    } else if ($(init).hasClass("parcheggio")) {
+                        InserisciPezzo($(init).attr("tipo"), $(init).attr("colore"), $(this).attr("posriga"), $(this).attr("poscolonna"));
+                    } else {
+                        MuoviPezzo($(init).attr("posriga"), $(init).attr("poscolonna"), $(this).attr("posriga"), $(this).attr("poscolonna"));
+                        $(".divq").removeClass("pallinorosso");
+                    }
+                }
+            })
+
+        });
+
+        function MosseDisponibili(riga, colonna) {
+            var item = $(this);
+            $.ajax({
+                url: '/Home/MosseDisponibili',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    riga: riga,
+                    colonna: colonna,
+                },
+                success: function (data) {
+                    DisegnaMosseDisponibili(data);
+                }
+            });
+        }
+
+        function NuovaPartita() {
+            $(".divq").removeClass("selezionato");
+            $.ajax({
+                url: '/Home/NuovaPartita',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                },
+                success: function (data) {
+                    DisegnaPezziInScacchiera(data);
+                }
+            });
+
+        }
+
+        function NuovaScacchiera() {
+            $.ajax({
+                url: '/Home/NuovaScacchiera',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                },
+                success: function (data) {
+                    DisegnaPezziInScacchiera(data);
+                }
+            });
+        }
+
+        function EliminaPezzo(riga, colonna) {
+            $.ajax({
+                url: '/Home/EliminaPezzo',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    riga: riga,
+                    colonna: colonna
+                },
+                success: function (data) {
+                    DisegnaPezziInScacchiera(data);
+                }
+            });
+        }
+
+
+        function MuoviPezzo(initRiga, initColonna, finRiga, finColonna) {
+            $.ajax({
+                url: '/Home/MuoviPezzo',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    initRiga: initRiga,
+                    initColonna: initColonna,
+                    finRiga: finRiga,
+                    finColonna: finColonna
+                },
+                success: function (data) {
+                    DisegnaPezziInScacchiera(data);
+                }
+            });
+
+        }
+
+        function InserisciPezzo(tipo, colore, riga, colonna) {
+            $.ajax({
+                url: '/Home/InseriscePezzo',
+                dataType: 'json',
+                type: 'post',
+                data: {
+                    tipo: tipo,
+                    colore: colore,
+                    riga: riga,
+                    colonna: colonna
+                },
+                success: function (data) {
+                    DisegnaPezziInScacchiera(data);
+                }
+            });
+
+        }
+        function DisegnaPezziInScacchiera(data) {
+            PulisciScacchiera();
+            data.forEach(function (item) {
+                var path = "/Content/Images/" + item.tipo + item.colore + ".png";
+                $(".pos" + item.posizione.riga + "-" + item.posizione.colonna).find(".img").show().attr("src", path);
+            });
+        }
+
+        function DisegnaMosseDisponibili(data) {
+            $(".divq").removeClass("pallinorosso");
+            data.forEach(function (item) {
+                $(".pos" + item.riga + "-" + item.colonna).addClass("pallinorosso");
+            });
+        }
+
+        function PulisciScacchiera() {
+            for (var col = 0; col < 8; col++) {
+                for (var riga = 0; riga < 8; riga++) {
+                    $(".pos" + riga + "-" + col).find(".img").hide();
+                }
+            }
+            $(".divq").removeClass("selezionato");
+        }
+
+
+
+    </script>
