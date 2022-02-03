@@ -201,7 +201,7 @@ namespace Chess.Tests
             chess.NuovaScacchiera();
             var re = new Re(0, 3, Colore.Nero, true);
             var torre = new Torre(0, 7, Colore.Nero, true);
-            bool ret = re.Mossa(new Pos { Riga = 0, Colonna = 7 });
+            bool ret = re.Mossa(new Pos(0, 5));
             Assert.IsTrue(ret);
         }
 
@@ -212,8 +212,22 @@ namespace Chess.Tests
             chess.NuovaScacchiera();
             var re = new Re(0, 3, Colore.Nero, true);
             var torre = new Torre(0, 0, Colore.Nero, true);
-            bool ret = re.Mossa(new Pos { Riga = 0, Colonna = 0 });
+            bool ret = re.Mossa(new Pos(0, 1));
             Assert.IsTrue(ret);
+        }
+
+        [TestMethod()]
+        public void Test_Arrocco3()
+        {
+            Chess chess = new Chess();
+            chess.NuovaScacchiera();
+            var re = new Re(0, 3, Colore.Nero, true);
+            new Torre(0, 0, Colore.Nero, true);
+            new Torre(0, 7, Colore.Nero, true);
+            new Torre(5, 4, Colore.Bianco, true);
+            Assert.IsFalse(re.Mossa(new Pos(0, 5)));
+            Assert.IsTrue(re.Mossa(new Pos(0, 1)));
+            Assert.AreEqual(Tipo.Torre, Chess.GetScacchiera().Where(q => q.Posizione.Equals(new Pos(0, 2))).FirstOrDefault()?.Tipo);
         }
 
         [TestMethod()]
@@ -222,10 +236,9 @@ namespace Chess.Tests
             Chess chess = new Chess();
             chess.NuovaScacchiera();
             var re = new Re(0, 3, Colore.Nero, true);
-            var torre = new Torre(0, 0, Colore.Nero, true);
-            var cavallo = new Cavallo(0, 1, Colore.Nero, true);
-            bool ret = re.Mossa(new Pos { Riga = 0, Colonna = 0 });
-            Assert.IsFalse(ret);
+            new Torre(0, 0, Colore.Nero, true);
+            new Cavallo(0, 1, Colore.Nero, true);
+            Assert.IsFalse(re.Mossa(new Pos(0, 1)));
         }
 
         [TestMethod()]
@@ -352,14 +365,13 @@ namespace Chess.Tests
         }
 
         [TestMethod()]
-        [Timeout(1)]
         public void Mossa_errata_2passi_con_pezzo_in_mezzo()
         {
             Chess chess = new Chess();
             chess.NuovaScacchiera();
             var pedone = new Pedone(6, 2, Colore.Bianco, true);
             var torre = new Torre(5, 2, Colore.Nero, true);
-            bool ret = pedone.Mossa(new Pos { Riga = 4, Colonna = 2 });
+            bool ret = pedone.Mossa(new Pos (4, 2));
             Assert.IsFalse(ret);
         }
 
@@ -486,6 +498,53 @@ namespace Chess.Tests
             Assert.IsTrue(chess.MuoviPezzo(new Pos(4, 0), new Pos(3, 0)), "5");
             Assert.IsTrue(chess.MuoviPezzo(new Pos(3, 1), new Pos(4, 0)), "2");
             Assert.AreEqual(Chess.GetScacchiera().Count, 31, "Non ci sono 31 pezzi");
+        }
+
+        [TestMethod()]
+        public void Test_If()
+        {
+            int a = 0;
+            for (int i = 0; i < 100000000; i++)
+            {
+                if (i == 1) a = 0;
+                else if (i == 2) a = 0;
+                else if (i == 3) a = 0;
+                else if (i == 4) a = 0;
+                else if (i == 5) a = 0;
+                else if (i == 6) a = 0;
+                else if (i == 7) a = 0;
+                else if (i == 8) a = 0;
+                else if (i == 9) a = 0;
+                else if (i == 10) a = 0;
+                else if (i == 11) a = 0;
+                else a = 0;
+            }
+            Assert.IsTrue(true);
+        }
+
+        [TestMethod()]
+        public void Test_Switch()
+        {
+            int a = 0;
+            for (int i = 0; i < 100000000; i++)
+            {
+                switch (i)
+                {
+                    case 1: a = 0; break;
+                    case 2: a = 0; break;
+                    case 3: a = 0; break;
+                    case 4: a = 0; break;
+                    case 5: a = 0; break;
+                    case 6: a = 0; break;
+                    case 7: a = 0; break;
+                    case 8: a = 0; break;
+                    case 9: a = 0; break;
+                    case 10: a = 0; break;
+                    case 11: a = 0; break;
+                    default: a = 0; break;
+                }
+            }
+            Assert.IsTrue(true);
         }
 
     }

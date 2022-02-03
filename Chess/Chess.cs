@@ -14,7 +14,7 @@ namespace Chess
     {
         private static List<Pezzo> Scacchiera = new List<Pezzo>();
         private static List<Pezzo> ScacchieraClone = new List<Pezzo>();
-
+        
         public static List<Pezzo> GetScacchiera(bool clone = false) 
         {
             if (clone)
@@ -41,15 +41,6 @@ namespace Chess
         {
             Pezzo pezzo = Scacchiera.Where(q => q.Posizione.Equals(iniziale)).FirstOrDefault();
             return pezzo != null ? pezzo.Mossa(finale) : false;
-        }
-
-        public static Pezzo MangiaPezzo(Pos pos)
-        {
-            Pezzo old = Chess.GetScacchiera().Where(q => q.Posizione.Equals(pos)).FirstOrDefault();
-            if (old != null)
-                Chess.GetScacchiera().Remove(old);
-
-            return old;
         }
 
         public static Pezzo MouviPezzoClone(Pos da, Pos a)
@@ -125,28 +116,38 @@ namespace Chess
         Regina = 5
     }
     public interface iPezzo {
-        public Boolean Mossa(Pos pos);
+
         public List<Pos> MosseDisponibili(bool testScacco = true);
 
-        public bool IsMossaValida(Pos pos, bool testScacco = true);
     }
 
     [Serializable()]
     public abstract class Pezzo : iPezzo, ICloneable
     {
-        public Pezzo()
-        {
-
-        }
-        abstract public List<Pos> MosseDisponibili(bool testScacco = true);
-        abstract public Boolean Mossa(Pos pos);
-        abstract public bool IsMossaValida(Pos pos, bool testScacco = true);
         public Pos Posizione { get; set; }
         public Colore Colore { get; set; }
         public Tipo Tipo { get; set; }
         public int NumMosse { get; set; }
         public Pos PosizioneMangiato { get; set; }
 
+
+        abstract public List<Pos> MosseDisponibili(bool testScacco = true);
+
+        public virtual bool Mossa(Pos pos)
+        {
+            if (!IsMossaValida(pos))
+                return false;
+
+            MangiaPezzo(PosizioneMangiato != null ? PosizioneMangiato : pos);
+
+            Posizione = pos;
+            NumMosse++;
+            return true;
+        }
+
+        public virtual bool IsMossaValida(Pos pos, bool testScacco = true)
+            => MosseDisponibili(testScacco).Contains(pos);
+        
         public Pezzo MangiaPezzo(Pos pos)
         {
             Pezzo old = Chess.GetScacchiera().Where(q => q.Posizione.Equals(pos) && q.Colore != Colore).FirstOrDefault();
@@ -156,95 +157,6 @@ namespace Chess
             PosizioneMangiato = null;
 
             return old;
-        }
-
-
-
-        public List<Pos> GetMosseTorre(Pos posizione, bool testScacco = true)
-        {
-            List<Pos> lista = new List<Pos>();
-            List<Pezzo> scacchiera = testScacco ? Chess.GetScacchiera() : Chess.GetScacchieraClone();
-            Re re = testScacco ? (Re)scacchiera.Where(q => q.Tipo == Tipo.Re && q.Colore == Colore).FirstOrDefault() : null;
-
-            Pos pos = null;
-            Pezzo pezzo = null;
-
-            int riga = posizione.Riga;
-            int colonna = posizione.Colonna;
-
-            for (int i = 0; i < 4; i++)
-            {
-                riga = posizione.Riga;
-                colonna = posizione.Colonna;
-                do
-                {
-                    pos = new Pos { Riga = riga, Colonna = colonna };
-
-                    if (re != null)
-                        Chess.MouviPezzoClone(Posizione, pos);
-
-                    if (!pos.Equals(posizione) && (re == null || re != null && !re.IsSottoScacco()))
-                    {
-                        lista.Add(pos);
-                        if (pezzo != null && pezzo?.Colore != Colore)
-                            break;
-                    }
-                    if (i == 0)      riga++;
-                    else if (i == 1) riga--;
-                    else if (i == 2) colonna++;
-                    else if (i == 3) colonna--;
-                    pos = new Pos { Riga = riga, Colonna = colonna };
-                    pezzo = scacchiera.Where(q => q.Posizione.Equals(pos)).FirstOrDefault();
-
-                } while (riga <= 7 && colonna <= 7 && riga >= 0 && colonna >= 0 && (pezzo == null || pezzo?.Colore != Colore));
-
-            }
-
-            return lista;
-        }
-
-        public List<Pos> GetMosseAlfiere(Pos posizione, bool testScacco = true)
-        {
-            List<Pos> lista = new List<Pos>();
-            List<Pezzo> scacchiera = testScacco ? Chess.GetScacchiera() : Chess.GetScacchieraClone();
-            Re re = testScacco ? (Re)scacchiera.Where(q => q.Tipo == Tipo.Re && q.Colore == Colore).FirstOrDefault() : null;
-
-            Pos pos = null;
-            Pezzo pezzo = null;
-
-            int riga = posizione.Riga;
-            int colonna = posizione.Colonna;
-
-            for (int i = 0; i < 4; i++)
-            {
-                riga = posizione.Riga;
-                colonna = posizione.Colonna;
-                do
-                {
-                    pos = new Pos { Riga = riga, Colonna = colonna };
-
-                    if (re != null)
-                        Chess.MouviPezzoClone(Posizione, pos);
-
-                    if (!pos.Equals(posizione) && (re == null || re != null && !re.IsSottoScacco()))
-                    {
-                        lista.Add(pos);
-                        if (pezzo != null && pezzo?.Colore != Colore)
-                            break;
-                    }
-                    if (i == 0) { riga++; colonna++; }
-                    else if (i == 1) { riga++; colonna--; }
-                    else if (i == 2) { riga--; colonna++; }
-                    else if (i == 3) { riga--; colonna--; }
-                    pos = new Pos { Riga = riga, Colonna = colonna };
-                    pezzo = scacchiera.Where(q => q.Posizione.Equals(pos)).FirstOrDefault();
-
-                } while (riga <= 7 && colonna <= 7 && riga >= 0 && colonna >= 0 && (pezzo == null || pezzo?.Colore != Colore));
-
-            }
-
-
-            return lista;
         }
 
         public object Clone()
@@ -280,12 +192,11 @@ namespace Chess
             }
         }
 
-
     }
 
     public class Pos
     {
-        public Pos()
+        public Pos() 
         {
         }
 
@@ -303,10 +214,19 @@ namespace Chess
             return (((Pos)obj).Riga == Riga && ((Pos)obj).Colonna == Colonna);
         }
 
-        public override int GetHashCode()
+        public override int GetHashCode() => base.GetHashCode();
+
+        public bool IsAttaccato(Colore colore, bool testRe = false)
         {
-            return base.GetHashCode();
+            foreach (Pezzo pezzo in Chess.GetScacchieraClone().Where(q => q.Colore != colore && (testRe || !testRe && q.Tipo != Tipo.Re)))
+            {
+                if (pezzo.IsMossaValida(this, false))
+                    return true;
+            }
+
+            return false;
         }
+
     }
 
     public class Torre : Pezzo
@@ -320,33 +240,48 @@ namespace Chess
                 Chess.GetScacchiera().Add(this);
         }
 
-        public override bool Mossa(Pos pos)
-        {
-            if (!IsMossaValida(pos))
-                return false;
-
-            MangiaPezzo(PosizioneMangiato != null ? PosizioneMangiato : pos);
-
-            Posizione = pos;
-            NumMosse++;
-            return true;
-        }
-
-        public override bool IsMossaValida(Pos pos, bool testScacco = true)
-        {
-            bool ret = true;
-            ret = MosseDisponibili(testScacco).Contains(pos);
-            
-
-            return ret;
-
-        }
-
         public override List<Pos> MosseDisponibili(bool testScacco = true)
         {
-            return GetMosseTorre(Posizione, testScacco);
-        }
+            List<Pos> lista = new List<Pos>();
+            List<Pezzo> scacchiera = testScacco ? Chess.GetScacchiera() : Chess.GetScacchieraClone();
+            Re re = testScacco ? (Re)scacchiera.Where(q => q.Tipo == Tipo.Re && q.Colore == Colore).FirstOrDefault() : null;
 
+            Pos pos = null;
+            Pezzo pezzo = null;
+
+            int riga = Posizione.Riga;
+            int colonna = Posizione.Colonna;
+
+            for (int i = 0; i < 4; i++)
+            {
+                riga = Posizione.Riga;
+                colonna = Posizione.Colonna;
+                do
+                {
+                    pos = new Pos { Riga = riga, Colonna = colonna };
+
+                    if (re != null)
+                        Chess.MouviPezzoClone(Posizione, pos);
+
+                    if (!pos.Equals(Posizione) && (re == null || re != null && !re.IsSottoScacco()))
+                    {
+                        lista.Add(pos);
+                        if (pezzo != null && pezzo?.Colore != Colore)
+                            break;
+                    }
+                    if (i == 0) riga++;
+                    else if (i == 1) riga--;
+                    else if (i == 2) colonna++;
+                    else if (i == 3) colonna--;
+                    pos = new Pos { Riga = riga, Colonna = colonna };
+                    pezzo = scacchiera.Where(q => q.Posizione.Equals(pos)).FirstOrDefault();
+
+                } while (riga <= 7 && colonna <= 7 && riga >= 0 && colonna >= 0 && (pezzo == null || pezzo?.Colore != Colore));
+
+            }
+
+            return lista;
+        }
 
     }
 
@@ -359,22 +294,6 @@ namespace Chess
             Tipo = Tipo.Cavallo;
             if (aggiungeScacchiera)
                 Chess.GetScacchiera().Add(this);
-        }
-        public override bool IsMossaValida(Pos pos, bool testScacco = true) 
-        {
-            return MosseDisponibili(testScacco).Contains(pos);
-        }
-
-        public override bool Mossa(Pos pos)
-        {
-            if (!IsMossaValida(pos))
-                return false;
-
-            MangiaPezzo(PosizioneMangiato != null ? PosizioneMangiato : pos);
-
-            NumMosse++;
-            Posizione = pos;
-            return true;
         }
 
         public override List<Pos> MosseDisponibili(bool testScacco = true)
@@ -417,6 +336,7 @@ namespace Chess
 
             return lista;
         }
+
     }
 
     public class Alfiere : Pezzo
@@ -430,28 +350,50 @@ namespace Chess
                 Chess.GetScacchiera().Add(this);
         }
 
-        public override bool Mossa(Pos pos)
-        {
-            if (!IsMossaValida(pos))
-                return false;
-
-            MangiaPezzo(PosizioneMangiato != null ? PosizioneMangiato : pos);
-
-            NumMosse++;
-            Posizione = pos;
-            return true;
-        }
-
-        public override bool IsMossaValida(Pos pos, bool testScacco = true)
-        {
-            bool ret = MosseDisponibili(testScacco).Contains(pos);
-
-            return ret;
-        }
-
         public override List<Pos> MosseDisponibili(bool testScacco = true)
         {
-            return GetMosseAlfiere(Posizione, testScacco);
+            List<Pos> lista = new List<Pos>();
+            List<Pezzo> scacchiera = testScacco ? Chess.GetScacchiera() : Chess.GetScacchieraClone();
+            Re re = testScacco ? (Re)scacchiera.Where(q => q.Tipo == Tipo.Re && q.Colore == Colore).FirstOrDefault() : null;
+
+            Pos pos = null;
+            Pezzo pezzo = null;
+
+            int riga = Posizione.Riga;
+            int colonna = Posizione.Colonna;
+
+            for (int i = 0; i < 4; i++)
+            {
+                riga = Posizione.Riga;
+                colonna = Posizione.Colonna;
+                do
+                {
+                    pos = new Pos { Riga = riga, Colonna = colonna };
+
+                    if (re != null)
+                        Chess.MouviPezzoClone(Posizione, pos);
+
+                    if (!pos.Equals(Posizione) && (re == null || re != null && !re.IsSottoScacco()))
+                    {
+                        lista.Add(pos);
+                        if (pezzo != null && pezzo?.Colore != Colore)
+                            break;
+                    }
+                    if (i == 0) { riga++; colonna++; }
+                    else if (i == 1) { riga++; colonna--; }
+                    else if (i == 2) { riga--; colonna++; }
+                    else if (i == 3) { riga--; colonna--; }
+                    pos = new Pos { Riga = riga, Colonna = colonna };
+                    pezzo = scacchiera.Where(q => q.Posizione.Equals(pos)).FirstOrDefault();
+
+                } while (riga <= 7 && colonna <= 7 && riga >= 0 && colonna >= 0 && (pezzo == null || pezzo?.Colore != Colore));
+
+            }
+
+            return lista;
+
+
+            //return GetMosseAlfiere(Posizione, testScacco);
         }
 
     }
@@ -467,26 +409,11 @@ namespace Chess
                 Chess.GetScacchiera().Add(this);
         }
 
-        public override bool Mossa(Pos pos)
-        {
-            if (!IsMossaValida(pos))
-                return false;
-
-            MangiaPezzo(PosizioneMangiato != null ? PosizioneMangiato : pos);
-
-            NumMosse++;
-            Posizione = pos;
-            return true;
-        }
-
-        public override bool IsMossaValida(Pos pos, bool testScacco = true)
-        {
-            return MosseDisponibili(testScacco).Contains(pos);
-        }
-
         public override List<Pos> MosseDisponibili(bool testScacco = true)
         {
-            return GetMosseTorre(Posizione, testScacco).Concat(GetMosseAlfiere(Posizione, testScacco)).ToList();
+            Torre torre = new Torre(Posizione.Riga, Posizione.Colonna, Colore);
+            Alfiere alfiere = new Alfiere(Posizione.Riga, Posizione.Colonna, Colore);
+            return torre.MosseDisponibili(testScacco).Concat(alfiere.MosseDisponibili(testScacco)).ToList();
         }
 
     }
@@ -510,25 +437,19 @@ namespace Chess
             MangiaPezzo(PosizioneMangiato != null ? PosizioneMangiato : pos);
 
             //Muovi arrocco
-            Pezzo torre = Chess.GetScacchiera().Where(q => q.Posizione.Equals(pos) && q.Colore == Colore).FirstOrDefault();
-            if (torre != null)
+            if (Math.Abs(Posizione.Colonna - pos.Colonna) == 2)
             {
-                var temp = torre.Posizione;
-                torre.Posizione = Posizione;
-                Posizione = temp;
+                Pezzo torre = Chess.GetScacchiera().Where(q => q.Posizione.Equals(new Pos(Posizione.Riga, pos.Colonna < 3 ? 0 : 7)) && q.Tipo == Tipo.Torre).FirstOrDefault();
+                if (torre != null)
+                {
+                    Posizione = pos;
+                    torre.Posizione = new Pos(Posizione.Riga, pos.Colonna < 3 ? 2 : 4);
+                }
             }
 
             NumMosse++;
             Posizione = pos;
             return true;
-        }
-
-        public override bool IsMossaValida(Pos pos, bool testScacco = true)
-        {
-            bool ret = MosseDisponibili(testScacco).Contains(pos);
-
-            return ret;
-
         }
 
         public override List<Pos> MosseDisponibili(bool testScacco = true)
@@ -567,13 +488,37 @@ namespace Chess
                 {
                     Pos posa = new Pos { Riga = rigaa, Colonna = i == 0 ? 7 : 0 };
                     Pezzo torrea = Chess.GetScacchiera().Where(q => q.Posizione.Equals(posa)).FirstOrDefault();
-                    Chess.MouviPezzoClone(Posizione, posa);
-                    Re re = (Re)Chess.MouviPezzoClone(Posizione, posa);
-                    if (torrea != null && torrea.Tipo == Tipo.Torre && torrea.Colore == Colore && torrea.NumMosse == 0 && (re == null || re != null && !re.IsSottoScacco(testScacco)))
+                    if (torrea != null && torrea.Tipo == Tipo.Torre && torrea.Colore == Colore && torrea.NumMosse == 0)
                     {
-                        //Verifica che non ci siano pezzi tra re e torre
-                        if (Chess.GetScacchiera().Where(q => q.Posizione.Riga == rigaa && (i == 0 && q.Posizione.Colonna > Posizione.Colonna && q.Posizione.Colonna < posa.Colonna || i == 1 && q.Posizione.Colonna < Posizione.Colonna && q.Posizione.Colonna > posa.Colonna)).Count() == 0)
-                            lista.Add(posa);
+                        List<Pos> lpos = i == 0
+                            ? new List<Pos> { new Pos(rigaa, Posizione.Colonna + 1), new Pos(rigaa, Posizione.Colonna + 2) }
+                            : new List<Pos> { new Pos(rigaa, Posizione.Colonna - 1), new Pos(rigaa, Posizione.Colonna - 2) };
+
+                        bool isAttaccato = false;
+                        Chess.GetScacchiera(true);
+                        foreach(Pos posb in lpos)
+                        {
+                            isAttaccato = posb.IsAttaccato(Colore);
+                            if (!isAttaccato)
+                                isAttaccato = Chess.GetScacchiera().Where(q => q.Posizione.Equals(posb)).FirstOrDefault() != null;
+                            if (isAttaccato) break;
+                        }
+                        if (!isAttaccato)
+                            isAttaccato = Posizione.IsAttaccato(Colore);
+                        if (!isAttaccato)
+                            isAttaccato = posa.IsAttaccato(Colore);
+
+
+                        if (!isAttaccato)
+                        {
+                            lista.Add(lpos[1]);
+                            //Chess.MouviPezzoClone(Posizione, posa);
+                            //Re re = (Re)Chess.MouviPezzoClone(Posizione, lpos[1]);
+                            //if (re == null || re != null && !re.IsSottoScacco(testScacco))
+                            //    Verifica che non ci siano pezzi tra re e torre
+                            //    if (Chess.GetScacchiera().Where(q => q.Posizione.Riga == rigaa && (i == 0 && q.Posizione.Colonna > Posizione.Colonna && q.Posizione.Colonna < posa.Colonna || i == 1 && q.Posizione.Colonna < Posizione.Colonna && q.Posizione.Colonna > posa.Colonna)).Count() == 0)
+                            //        lista.Add(posa);
+                        }
                     }
                 }
 
@@ -605,25 +550,6 @@ namespace Chess
             Tipo = Tipo.Pedone;
             if (aggiungeScacchiera)
                 Chess.GetScacchiera().Add(this);
-        }
-
-        public override bool Mossa(Pos pos)
-        {
-            if (!IsMossaValida(pos))
-                return false;
-
-            MangiaPezzo(PosizioneMangiato != null ? PosizioneMangiato : pos);
-
-            NumMosse++;
-            Posizione = pos;
-            return true;
-        }
-
-        public override bool IsMossaValida(Pos pos, bool testScacco = true)
-        {
-            bool ret = MosseDisponibili(testScacco).Contains(pos);
-
-            return ret;
         }
 
         public override List<Pos> MosseDisponibili(bool testScacco = true)
