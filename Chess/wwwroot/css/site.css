@@ -71,8 +71,9 @@ body {
 }
 
 .selezionato {
-    border: 1px solid;
-    border-color: red;
+    background-image: url("/Content/Images/pallinogiallo.png");
+    background-repeat: no-repeat;
+    background-size: 100%;
 }
 
 .divq {
@@ -82,8 +83,25 @@ body {
     height: 60px
 }
 
+.pallinogiallo {
+    background-image: url("/Content/Images/pallinogiallo.png");
+    background-repeat: no-repeat;
+    background-size: 100%;
+}
+
 .pallinorosso {
     background-image: url("/Content/Images/pallinorosso.png");
     background-repeat: no-repeat;
     background-size: 100%;
+}
+
+.pallinoazzurro {
+    background-image: url("/Content/Images/pallinoazzurro.png");
+    background-repeat: no-repeat;
+    background-size: 100%;
+}
+
+.turnoattivo {
+    border: 2px solid !important;
+    border-color: red !important;
 }

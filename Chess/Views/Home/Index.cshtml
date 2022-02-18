@@ -4,37 +4,63 @@
 
 <div class="text-center">
 
-    <div style="border: 1px solid; display: inline-block; ">
-        @for (int riga = 0; riga < 8; riga++)
-        {
-            <div style="display:flex">
-                @for (int col = 0; col < 8; col++)
+    <div style="margin-bottom:10px">
+        <div style="display: inline-block; ">
+            <div>
+                <i class="fas fa-fast-backward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
+                <i class="fas fa-step-backward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
+                <i class="fas fa-step-forward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
+                <i class="fas fa-fast-forward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
+            </div>
+            <select id="boxmosse" name="sometext" size="20" style="width: 110px">
+            </select>
+        </div>
+        <div style="display: inline-block; ">
+            <div style="margin-bottom:10px">
+                <div style="display: inline-block">
+                    <div class="turno turno0" colore="0" style="background-color: white; border-radius: 25px; border: 1px solid;width:25px;height:25px; margin-right: 10px"></div>
+                </div>
+                <button onclick="NuovaPartita()">Nuova partita</button>
+                <button onclick="NuovaScacchiera()">Scacchiera vuota</button>
+                <div style="display: inline-block">
+                    <div class="turno turno1" colore="1" style="background-color: black; border-radius: 25px; border: 1px solid; width:25px;height:25px; margin-left: 10px"></div>
+                </div>
+            </div>
+
+            <div style="border: 1px solid;">
+                @for (int riga = 8; riga >= 1; riga--)
                 {
-                    <div class="@($"pos{riga}-{col}") divq" posRiga="@riga" posColonna="@col" style="background-color: @((riga+col) % 2 == 0 ? "black" : "white")">
-                        <img class="img" style="display:none" />
+                    <div style="display:flex">
+                        @for (int col = 1; col <= 8; col++)
+                        {
+                            <div class="@($"pos{riga}-{col}") divq" posRiga="@riga" posColonna="@col" style="background-color: @((riga+col) % 2 == 0 ? "black" : "white")">
+                                <img class="img" style="display:none" />
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+        </div>
+
+        @for (int ii = 0; ii < 2; ii++)
+        {
+            <div style="border: 1px solid; display: inline-block; background-color: black">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="divq parcheggio" tipo="@i" colore="@ii" style="background-color: white">
+                        <img src="~/Content/Images/@(i)@(ii).png" class="img" style="" />
                     </div>
                 }
             </div>
         }
-
     </div>
-    @for (int ii = 0; ii < 2; ii++)
-    {
-        <div style="border: 1px solid; display: inline-block; ">
-            @for (int i = 0; i < 6; i++)
-            {
-                <div class="divq parcheggio" tipo="@i" colore="@ii" style="background-color: white">
-                    <img src="~/Content/Images/@(i)@(ii).png" class="img" style="" />
-                </div>
-            }
-        </div>
-    }
 
-    <div>
-        <button onclick="NuovaPartita()">Nuova partita</button>
-        <button onclick="NuovaScacchiera()">Scacchiera vuota</button>
-        <button onclick="MuoviPezzo()">Muovi pezzo</button>
+    <div style="margin-top:10px">
+        <textarea id="txtPartita"></textarea>
+        <button onclick="CaricaPartita()">Carica partita</button>
     </div>
+
 
 </div>
 
@@ -42,34 +68,124 @@
 
         $(document).ready(function () {
 
+            DisegnaScacchiera();
+            DisegnaMosse();
+            SottoScacco(null, null, 0);
+            if ($(".pallinorosso").length == 0) {
+                SottoScacco(null, null, 1);
+            }
+            $(".turno" + ($("#boxmosse").children().length - 1) % 2).addClass("turnoattivo");
+
+            $(".img").draggable({
+                revert: "invalid",
+                refreshPositions: true,
+                drag: function (event, ui) {
+                    ui.helper.addClass("draggable");
+                },
+                stop: function (event, ui) {
+                    ui.helper.removeClass("draggable");
+                    var image = this.src.split("/")[this.src.split("/").length - 1];
+                    if ($.ui.ddmanager.drop(ui.helper.data("draggable"), event)) {
+                        
+                    }
+                    else {
+                        
+                    }
+                }
+            });
+
+            $(".divq").droppable({
+                drop: function (event, ui) {
+                    var initRiga = ui.draggable.parent().attr("posRiga");
+                    var initColonna = ui.draggable.parent().attr("posColonna");
+                    var finRiga = $(this).attr("posRiga");
+                    var finColonna = $(this).attr("posColonna");
+
+                    var op = MuoviPezzo(initRiga, initColonna, finRiga, finColonna);
+                    if (op == "") {
+                        SottoScacco(finRiga, finColonna);
+                    } else {
+                        DisegnaScacchiera();
+                    }
+                    ui.draggable.addClass("dropped");
+                }
+            });
+
             $(".divq").click(function (e) {
 
                 if (e.ctrlKey) {
                     EliminaPezzo($(this).attr("posriga"), $(this).attr("poscolonna"));
-                }
-                else if ($(this).attr("poscolonna") == undefined) {
+                    SottoScacco($(this).attr("posriga"), $(this).attr("poscolonna"));
+                } else if ($(this).hasClass("selezionato")) {
+                    $(".divq").removeClass("pallinoazzurro");
+                    $(".divq").removeClass("selezionato");
+                } else if ($(this).attr("poscolonna") == undefined) {
+                    $(".divq").removeClass("selezionato");
                     $(this).addClass("selezionato");
                 } else {
                     var init = $(".selezionato")[0];
                     if (init == undefined) {
-                        $(this).addClass("selezionato");
-                        MosseDisponibili($(this).attr("posriga"), $(this).attr("poscolonna"));
+                        var pezzo = GetPezzo($(this).attr("posriga"), $(this).attr("poscolonna"));
+                        if (pezzo != null) {
+                            if ($(".turnoattivo").length == 0 || pezzo != null && pezzo.colore == $(".turnoattivo").attr("colore")) {
+                                $(".divq").removeClass("selezionato");
+                                $(this).addClass("selezionato");
+                                MosseDisponibili($(this).attr("posriga"), $(this).attr("poscolonna"));
+                            }
+                        }
                     } else if ($(init).hasClass("parcheggio")) {
                         InserisciPezzo($(init).attr("tipo"), $(init).attr("colore"), $(this).attr("posriga"), $(this).attr("poscolonna"));
+                        SottoScacco($(this).attr("posriga"), $(this).attr("poscolonna"));
                     } else {
-                        MuoviPezzo($(init).attr("posriga"), $(init).attr("poscolonna"), $(this).attr("posriga"), $(this).attr("poscolonna"));
-                        $(".divq").removeClass("pallinorosso");
+                        var op = MuoviPezzo($(init).attr("posriga"), $(init).attr("poscolonna"), $(this).attr("posriga"), $(this).attr("poscolonna"));
+                        if (op == "") {
+                            SottoScacco($(this).attr("posriga"), $(this).attr("poscolonna"));
+                        } else if (op == "colore") {
+                            $(".divq").removeClass("selezionato");
+                            $(this).addClass("selezionato");
+                            MosseDisponibili($(this).attr("posriga"), $(this).attr("poscolonna"));
+                        }
                     }
                 }
             })
 
+            $(".mmosse").click(function (e) {
+                var val = parseInt($("#boxmosse").val());
+                
+                if ($(this).hasClass("fa-fast-backward")) {
+                    val = 0;
+                } else if ($(this).hasClass("fa-step-backward")) {
+                    val -= 1;
+                } else if ($(this).hasClass("fas fa-step-forward")) {
+                    val += 1;
+                } else if ($(this).hasClass("fa-fast-forward")) {
+                    val = $("#boxmosse").children().length - 1;
+                }
+                if (val >= 1) {
+                }
+                $('#boxmosse')
+                    .find('option:nth-child(' + (val + 1) + ')')
+                    .prop('selected', true)
+                    .trigger('click');
+            })
+
+            $("#boxmosse").click(function (e) {
+                var num = $(this).val();
+                DisegnaScacchiera(num);
+            })
+
         });
+
+        function handleDrop(event, ui) {
+
+        }
 
         function MosseDisponibili(riga, colonna) {
             var item = $(this);
             $.ajax({
                 url: '/Home/MosseDisponibili',
                 dataType: 'json',
+                async: false,
                 type: 'post',
                 data: {
                     riga: riga,
@@ -86,11 +202,56 @@
             $.ajax({
                 url: '/Home/NuovaPartita',
                 dataType: 'json',
+                async: false,
                 type: 'post',
                 data: {
                 },
                 success: function (data) {
                     DisegnaPezziInScacchiera(data);
+                    DisegnaMosse();
+                    $(".turno").removeClass("turnoattivo");
+                    $(".turno0").addClass("turnoattivo");
+                }
+            });
+
+        }
+
+        function CaricaPartita() {
+            $.ajax({
+                url: '/Home/CaricaPartita',
+                dataType: 'json',
+                async: false,
+                type: 'post',
+                data: {
+                    txtPartita: $("#txtPartita").val()
+                },
+                success: function (data) {
+                    DisegnaPezziInScacchiera(data);
+                    DisegnaMosse();
+                    $(".turno").removeClass("turnoattivo");
+                    $(".turno0").addClass("turnoattivo");
+                }
+            });
+
+        }
+
+
+        function SottoScacco(riga, colonna, colore) {
+            $.ajax({
+                url: '/Home/IsSottoScacco',
+                dataType: 'json',
+                async: false,
+                type: 'post',
+                data: {
+                    riga: riga,
+                    colonna: colonna,
+                    colore: colore
+                },
+                success: function (pos) {
+                    $(".divq").removeClass("pallinorosso");
+                    if (pos != null) {
+                        $(".pos" + pos.riga + "-" + pos.colonna).addClass("pallinorosso");
+                    }
                 }
             });
 
@@ -100,8 +261,26 @@
             $.ajax({
                 url: '/Home/NuovaScacchiera',
                 dataType: 'json',
+                async: false,
                 type: 'post',
                 data: {
+                },
+                success: function (data) {
+                    DisegnaPezziInScacchiera(data);
+                    DisegnaMosse();
+                    $(".turnoattivo").removeClass("turnoattivo");
+                }
+            });
+        }
+
+        function DisegnaScacchiera(numMosse) {
+            $.ajax({
+                url: '/Home/GetScacchiera',
+                dataType: 'json',
+                async: false,
+                type: 'post',
+                data: {
+                    numMosse: numMosse
                 },
                 success: function (data) {
                     DisegnaPezziInScacchiera(data);
@@ -113,22 +292,24 @@
             $.ajax({
                 url: '/Home/EliminaPezzo',
                 dataType: 'json',
+                async: false,
                 type: 'post',
                 data: {
                     riga: riga,
                     colonna: colonna
                 },
                 success: function (data) {
-                    DisegnaPezziInScacchiera(data);
+                    DisegnaPezziInScacchiera(data.scacchiera);
                 }
             });
         }
 
-
         function MuoviPezzo(initRiga, initColonna, finRiga, finColonna) {
+            var ret = null;
             $.ajax({
                 url: '/Home/MuoviPezzo',
                 dataType: 'json',
+                async: false,
                 type: 'post',
                 data: {
                     initRiga: initRiga,
@@ -137,16 +318,39 @@
                     finColonna: finColonna
                 },
                 success: function (data) {
-                    DisegnaPezziInScacchiera(data);
+                    if (data.mossa != null) {
+                        DisegnaPezziInScacchiera(data.scacchiera);
+                        DisegnaMosse(data.mosse);
+                        if ($(".turnoattivo").length > 0) {
+                            $(".turno").removeClass("turnoattivo");
+                            if (data.mossa.pezzo.colore == 0) {
+                                $(".turno1").addClass("turnoattivo");
+                            } else {
+                                $(".turno0").addClass("turnoattivo");
+                            }
+                        }
+                        if (data.mossa.isScaccoMatto) {
+                            setTimeout("alert('Scacco matto');", 1);
+                        }
+                    }
+                    $(".divq").removeClass("pallinoazzurro");
+                    $(".divq").removeClass("selezionato");
+                    ret = data.op;
+                },
+                error: function (data) {
+                    
                 }
+
             });
 
+            return ret;
         }
 
         function InserisciPezzo(tipo, colore, riga, colonna) {
             $.ajax({
                 url: '/Home/InseriscePezzo',
                 dataType: 'json',
+                async: false,
                 type: 'post',
                 data: {
                     tipo: tipo,
@@ -155,11 +359,30 @@
                     colonna: colonna
                 },
                 success: function (data) {
-                    DisegnaPezziInScacchiera(data);
+                    DisegnaPezziInScacchiera(data.scacchiera);
                 }
             });
 
         }
+
+        function GetPezzo(riga, colonna) {
+            var pezzo = null;
+            $.ajax({
+                url: '/Home/GetPezzo',
+                dataType: 'json',
+                async: false,
+                type: 'post',
+                data: {
+                    riga: riga,
+                    colonna: colonna
+                },
+                success: function (data) {
+                    pezzo = data;
+                }
+            });
+            return pezzo;
+        }
+
         function DisegnaPezziInScacchiera(data) {
             PulisciScacchiera();
             data.forEach(function (item) {
@@ -168,20 +391,50 @@
             });
         }
 
-        function DisegnaMosseDisponibili(data) {
-            $(".divq").removeClass("pallinorosso");
+        function DisegnaMosse(data) {
+            $("#boxmosse").html("");
+            if (data == null) {
+                $.ajax({
+                    url: '/Home/GetMosse',
+                    dataType: 'json',
+                    async: false,
+                    type: 'post',
+                    data: {
+                    },
+                    success: function (mosse) {
+                        data = mosse;
+                    }
+                });
+
+            }
+            var max = 0;
+            $("#boxmosse").append("<option value='0'>--- Start ---</option>");
+            var cont = 0;
             data.forEach(function (item) {
-                $(".pos" + item.riga + "-" + item.colonna).addClass("pallinorosso");
+                cont++;
+                $("#boxmosse").append("<option value='" + item.num + "'>" + cont + "." + item.sMossa + "</option>");
+                max = item.num;
+            });
+            $("#boxmosse option[value='" + max + "']").attr("selected", "true");
+
+        }
+
+        function DisegnaMosseDisponibili(data) {
+            $(".divq").removeClass("pallinoazzurro");
+            data.forEach(function (item) {
+                $(".pos" + item.riga + "-" + item.colonna).addClass("pallinoazzurro");
             });
         }
 
         function PulisciScacchiera() {
-            for (var col = 0; col < 8; col++) {
-                for (var riga = 0; riga < 8; riga++) {
+            $(".divq").removeClass("pallinoazzurro");
+            $(".divq").removeClass("selezionato");
+            $(".divq").removeClass("pallinorosso");
+            for (var col = 1; col <= 8; col++) {
+                for (var riga = 1; riga <= 8; riga++) {
                     $(".pos" + riga + "-" + col).find(".img").hide();
                 }
             }
-            $(".divq").removeClass("selezionato");
         }
 
 
