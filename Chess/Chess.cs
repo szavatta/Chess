@@ -105,6 +105,7 @@ namespace Chess
             return ret;
         }
 
+
         public static List<Pezzo> AggiungePezzo(Pezzo pezzo)
         { 
             Scacchiera.Add(pezzo);
@@ -511,7 +512,7 @@ namespace Chess
                 mossa.sMossa = mossa.sMossa.Replace("+", "#");
                 mossa.isScaccoMatto = true;
             }
-
+            
             NumMosse++;
             return mossa;
         }
