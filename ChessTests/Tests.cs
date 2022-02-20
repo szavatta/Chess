@@ -194,6 +194,20 @@ namespace Chess.Tests
             var re2 = new Re(7, 6, Colore.Bianco, true);
             bool ret = re.Mossa(new Pos { Riga = 6, Colonna = 6 }) != null;
             Assert.IsFalse(ret);
+            Assert.AreEqual(6, re.MosseDisponibili().Count);
+            new Torre(4, 1, Colore.Bianco, true);
+            Assert.AreEqual(3, re.MosseDisponibili().Count);
+        }
+
+        [TestMethod()]
+        public void ScaccoMatto()
+        {
+            Chess chess = new Chess();
+            chess.NuovaScacchiera();
+            var re = new Re(1, 5, Colore.Nero, true);
+            new Torre(1, 1, Colore.Bianco, true);
+            new Torre(2, 1, Colore.Bianco, true);
+            Assert.IsTrue(re.IsScaccoMatto());
         }
 
 
@@ -769,7 +783,7 @@ namespace Chess.Tests
             Assert.IsTrue(chess.MuoviPezzo("40. d7# "));
 
             Pezzo re = Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re && q.Colore == Colore.Nero).FirstOrDefault();
-            
+
             Assert.IsTrue(re.MosseDisponibili().Count == 0);
         }
 
@@ -1287,7 +1301,7 @@ namespace Chess.Tests
             ";
             List<string> mosse = chess.GetStringMosse(partita);
 
-            foreach(string mossa in mosse)
+            foreach (string mossa in mosse)
             {
                 Assert.IsTrue(chess.MuoviPezzo(mossa));
             }
@@ -1449,7 +1463,40 @@ namespace Chess.Tests
 
             //Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Bianco).Count() == 4);
             //Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Nero).Count() == 3);
+            chess.GetScacchieraString();
         }
+
+        [TestMethod()]
+        public void Test18()
+        {
+            Chess chess = new Chess();
+            chess.NuovaPartita();
+            string partita = @"
+1. e4 c5 2. Nf3 e6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 Nc6 6. Nxc6 bxc6 7. e5 Nd5 8.
+Ne4 Qc7 9. f4 Qb6 10. c4 Bb4+ 11. Ke2 f5 12. exf6 Nxf6 13. Be3 Qd8 14. Nd6+ Bxd6
+15. Qxd6 Bb7 16. Rd1 Rc8 17. g4 c5 18. Rg1 Rf8 19. Bg2 Bxg2 20. Rxg2 Rf7 21. Kf1
+Qb6 22. Kg1 Rc6 23. Qd3 d5 24. g5 dxc4 25. Qe2 Ng8 26. Qxc4 Ne7 27. Rgd2 Rf5 28.
+Qe4 Qc7 29. b3 a6 30. Rd3 Qc8 31. Bc1 g6 32. Bb2 Rd5 33. Rxd5 exd5 34. Rxd5 Re6
+35. Re5 Rxe5 36. fxe5 Qd7 37. e6 Qd1+ 38. Kg2 Qd2+ 39. Kh3 Qd5 40. Qxd5 Nxd5 41.
+Kg4 Ke7 42. Ba3 Kd6 43. Kf3 Ne7 44. Ke4 Nd5 45. e7 Nxe7 46. b4 Nc6 47. bxc5+ Ke6
+48. Bc1 Ne7 49. Bd2 Nc6 50. Bc3 Ne7 51. Kd4 Nf5+ 52. Ke4 Ne7 53. Be5 Nc6 54. Bf4
+Nb4 55. Kd4 Nc6+ 56. Ke4 Nb4 57. Bd2 Nc6 58. Bc3 Ne7 1/2-1/2
+            ";
+            List<string> mosse = chess.GetStringMosse(partita);
+
+            foreach (string mossa in mosse)
+            {
+                Assert.IsTrue(chess.MuoviPezzo(mossa));
+            }
+
+            var c = chess.GetScacchieraString();
+        }
+
+    }
+
+    [TestClass()]
+    public class PartiteMultiTests
+    {
 
         [TestMethod()]
         public void TestMultipartita()
@@ -1477,27 +1524,81 @@ namespace Chess.Tests
                 }
             }
 
-//╔═╦═╦═╦═╦═╦═╦═╦═╗
-//║ ║ ║ ║a║ ║ ║ ║ ║
-//╠═╬═╬═╬═╬═╬═╬═╬═╣
-//║ ║ ║ ║t║ ║ ║p║ ║
-//╠═╬═╬═╬═╬═╬═╬═╬═╣
-//║p║ ║r║ ║p║ ║ ║p║
-//╠═╬═╬═╬═╬═╬═╬═╬═╣
-//║ ║p║ ║ ║P║p║ ║ ║
-//╠═╬═╬═╬═╬═╬═╬═╬═╣
-//║ ║P║ ║A║R║ ║ ║ ║
-//╠═╬═╬═╬═╬═╬═╬═╬═╣
-//║P║ ║P║ ║ ║ ║P║ ║
-//╠═╬═╬═╬═╬═╬═╬═╬═╣
-//║ ║ ║ ║ ║ ║ ║ ║P║
-//╠═╬═╬═╬═╬═╬═╬═╬═╣
-//║ ║ ║ ║ ║T║ ║ ║ ║
-//╚═╩═╩═╩═╩═╩═╩═╩═╝
+            //╔═╦═╦═╦═╦═╦═╦═╦═╗
+            //║ ║ ║ ║a║ ║ ║ ║ ║
+            //╠═╬═╬═╬═╬═╬═╬═╬═╣
+            //║ ║ ║ ║t║ ║ ║p║ ║
+            //╠═╬═╬═╬═╬═╬═╬═╬═╣
+            //║p║ ║r║ ║p║ ║ ║p║
+            //╠═╬═╬═╬═╬═╬═╬═╬═╣
+            //║ ║p║ ║ ║P║p║ ║ ║
+            //╠═╬═╬═╬═╬═╬═╬═╬═╣
+            //║ ║P║ ║A║R║ ║ ║ ║
+            //╠═╬═╬═╬═╬═╬═╬═╬═╣
+            //║P║ ║P║ ║ ║ ║P║ ║
+            //╠═╬═╬═╬═╬═╬═╬═╬═╣
+            //║ ║ ║ ║ ║ ║ ║ ║P║
+            //╠═╬═╬═╬═╬═╬═╬═╬═╣
+            //║ ║ ║ ║ ║T║ ║ ║ ║
+            //╚═╩═╩═╩═╩═╩═╩═╩═╝
 
             //Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Bianco).Count() == 4);
             //Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Nero).Count() == 3);
         }
+
+        [TestMethod()]
+
+        public void Anand()
+        {
+            string partite = Properties.Resources.Anand;
+
+            Chess chess = new Chess();
+
+            //partite in errore fino a 2400: 
+            List<Partita> lpart = chess.GetPartite(partite);
+            int npar = 0;
+            foreach (Partita partita in lpart)
+            {
+                npar++;
+                chess.NuovaPartita();
+
+                List<string> lmosse = chess.GetStringMosse(partita.Mosse);
+                int nmos = 0;
+                foreach (string mossa in lmosse)
+                {
+                    nmos++;
+                    Assert.IsTrue(chess.MuoviPezzo(mossa), $"Event {partita.Event}, Round {partita.Round}, Mossa {nmos}");
+                    //chess.GetScacchieraString();
+                }
+            }
+        }
+
+        [TestMethod()]
+        public void Kasparov()
+        {
+            string partite = Properties.Resources.Kasparov;
+
+            Chess chess = new Chess();
+
+            List<Partita> lpart = chess.GetPartite(partite);
+            int npar = 0;
+            string a = "";
+            foreach (Partita partita in lpart)
+            {
+                npar++;
+                chess.NuovaPartita();
+
+                List<string> lmosse = chess.GetStringMosse(partita.Mosse);
+                int nmos = 0;
+                foreach (string mossa in lmosse)
+                {
+                    nmos++;
+                    Assert.IsTrue(chess.MuoviPezzo(mossa), $"Event {partita.Event}, Round {partita.Round}, Mossa {nmos}");
+                    a = chess.GetScacchieraString();
+                }
+            }
+        }
+
     }
 
 }

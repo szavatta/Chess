@@ -74,7 +74,7 @@ namespace Chess
 
         public string GetScacchieraString()
         {
-            string ret = "╔═╦═╦═╦═╦═╦═╦═╦═╗\r\n";
+            string ret = "╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗\r\n";
             for (int riga = 8; riga >= 1; riga--)
             {
                 ret += "║";
@@ -90,17 +90,17 @@ namespace Chess
                         let = pezzo.Lettera;
 
                     if (pezzo?.Colore == Colore.Nero && let != " ")
-                        let = ((char)((int)let[0] + 32)).ToString();
+                        let = let.ToLower();
 
-                    ret += let;
+                    ret += " " + let + " " ;
 
                     ret += "║";
                 }
                 ret += "\r\n";
                 if (riga > 1)
-                    ret += "╠═╬═╬═╬═╬═╬═╬═╬═╣\r\n";
+                    ret += "╠═══╬═══╬═══╬═══╬═══╬═══╬═══╬═══╣\r\n";
             }
-            ret += "╚═╩═╩═╩═╩═╩═╩═╩═╝\r\n";
+            ret += "╚═══╩═══╩═══╩═══╩═══╩═══╩═══╩═══╝\r\n";
 
             return ret;
         }
@@ -168,7 +168,7 @@ namespace Chess
         {
             List<Partita> partite = new List<Partita>();
             Partita partita = null;
-            foreach (string riga in spartite.Split("\r\n"))
+            foreach (string riga in spartite.Replace("\n","\r\n").Split("\r\n"))
             {
                 if (riga.StartsWith("["))
                 {
@@ -222,7 +222,7 @@ namespace Chess
                     if (partita.Mosse == null)
                         partita.Mosse = "";
 
-                    partita.Mosse += riga + "\r\n";
+                    partita.Mosse += riga.Replace("\n"," ") + " ";
                 }
                 if (string.IsNullOrEmpty(riga) && !string.IsNullOrEmpty(partita?.Mosse))
                 {
@@ -230,6 +230,9 @@ namespace Chess
                     partita = null;
                 }
             }
+
+            partite.Add(partita);
+
 
             return partite;
         }

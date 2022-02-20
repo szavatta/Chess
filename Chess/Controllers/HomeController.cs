@@ -70,7 +70,8 @@ namespace Chess.Controllers
         public JsonResult CaricaPartita(string txtPartita)
         {
             chess.NuovaPartita();
-            List<string> lmosse = chess.GetStringMosse(txtPartita);
+            Partita partita = chess.GetPartite(txtPartita).FirstOrDefault();
+            List<string> lmosse = chess.GetStringMosse(partita.Mosse);
             foreach (string mossa in lmosse)
             {
                 if (!chess.MuoviPezzo(mossa))

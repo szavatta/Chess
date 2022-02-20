@@ -61,6 +61,57 @@ namespace Chess.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;Wch U20&quot;]
+        ///[Site &quot;Kiljava&quot;]
+        ///[Date &quot;1984.??.??&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;Anand, Viswanathan&quot;]
+        ///[Black &quot;Wolff, Patrick G&quot;]
+        ///[Result &quot;0-1&quot;]
+        ///[WhiteElo &quot;2285&quot;]
+        ///[BlackElo &quot;2225&quot;]
+        ///[ECO &quot;B09&quot;]
+        ///
+        ///1.e4 d6 2.d4 Nf6 3.Nc3 g6 4.f4 Bg7 5.Nf3 O-O 6.e5 Nfd7 7.h4 c5 8.e6 fxe6
+        ///9.h5 gxh5 10.Rxh5 Nf6 11.Rh4 Nc6 12.Be3 Qa5 13.Bd3 cxd4 14.Nxd4 Nxd4 15.Bxd4 e5
+        ///16.fxe5 dxe5 17.Be3 e4 18.Bc4+ Kh8 19.Qd4 Bg4 20.Bb3 Rac8 21.Bd2 Qa6 22.Qe3 Nd5  0-1
+        ///
+        ///[Event &quot;Lloyds Bank op&quot;]
+        ///[Site &quot;London&quot;]
+        ///[Date &quot;1984.??.??&quot;]
+        ///[Round  [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Anand {
+            get {
+                return ResourceManager.GetString("Anand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;Wch U16&quot;]
+        ///[Site &quot;Wattignies&quot;]
+        ///[Date &quot;1976.08.27&quot;]
+        ///[Round &quot;?&quot;]
+        ///[White &quot;Chandler, Murray G&quot;]
+        ///[Black &quot;Kasparov, Gary&quot;]
+        ///[Result &quot;1-0&quot;]
+        ///[WhiteElo &quot;&quot;]
+        ///[BlackElo &quot;&quot;]
+        ///[ECO &quot;B22&quot;]
+        ///
+        ///1.e4 c5 2.c3 Nf6 3.e5 Nd5 4.d4 Nc6 5.Nf3 cxd4 6.cxd4 e6 7.a3 d6 8.Bd3 Qa5+
+        ///9.Bd2 Qb6 10.Nc3 Nxc3 11.Bxc3 dxe5 12.dxe5 Be7 13.O-O Bd7 14.Nd2 Qc7 15.Qg4 O-O-O
+        ///16.Rfc1 Kb8 17.Qc4 Rc8 18.b4 f6 19.Nf3 Qb6 20.Qe4 f5 21.Qe1 a6 22.Rab1 g5
+        ///23.Nd2 Nd4 24.Qe3 Rxc3 25.Rxc3 f4 26.Qe1 g4 27.Ne4 Bc6 28.Nc5 Ka7 29.a4 Bf3
+        ///30.a5 Qd8  [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Kasparov {
+            get {
+                return ResourceManager.GetString("Kasparov", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;Lloyds Bank op&quot;]
         ///[Site &quot;London&quot;]
         ///[Date &quot;1984.??.??&quot;]
