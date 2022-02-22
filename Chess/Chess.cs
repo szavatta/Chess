@@ -168,7 +168,7 @@ namespace Chess
         {
             List<Partita> partite = new List<Partita>();
             Partita partita = null;
-            foreach (string riga in spartite.Replace("\n","\r\n").Split("\r\n"))
+            foreach (string riga in spartite.Replace("\r\n", "\temp").Replace("\n", "\temp").Replace("\r", "\temp").Split("\temp"))
             {
                 if (riga.StartsWith("["))
                 {
@@ -231,7 +231,8 @@ namespace Chess
                 }
             }
 
-            partite.Add(partita);
+            if (partita != null)
+                partite.Add(partita);
 
 
             return partite;
@@ -307,7 +308,7 @@ namespace Chess
                 Colore? colore = null;
                 foreach (string sm in sMosse)
                 {
-                    if (sm == "1-0" || sm == "0-1" || sm == "1/2-1/2")
+                    if (sm == "1-0" || sm == "0-1" || sm == "1/2-1/2" || sm == "*")
                     {
                         //Fine partita
                         return true;

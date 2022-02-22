@@ -6,6 +6,7 @@ using System.Text;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace Chess.Tests
 {
@@ -96,9 +97,11 @@ namespace Chess.Tests
             Chess chess = new Chess();
             chess.NuovaScacchiera();
             var alfiere = new Alfiere(5, 5, Colore.Nero, true);
-            var torre = new Torre(6, 6, Colore.Nero, true);
-            bool ret = alfiere.Mossa(new Pos { Riga = 6, Colonna = 6 }) != null;
-            Assert.IsFalse(ret);
+            new Torre(6, 6, Colore.Nero, true);
+            Assert.IsFalse(alfiere.Mossa(new Pos { Riga = 7, Colonna = 7 }) != null);
+            new Torre(6, 4, Colore.Bianco, true);
+            Assert.IsFalse(alfiere.Mossa(new Pos { Riga = 7, Colonna = 3 }) != null);
+            Assert.IsTrue(alfiere.Mossa(new Pos { Riga = 6, Colonna = 4 }) != null);
         }
 
 
@@ -1573,6 +1576,7 @@ Nb4 55. Kd4 Nc6+ 56. Ke4 Nb4 57. Bd2 Nc6 58. Bc3 Ne7 1/2-1/2
             int npar = 0;
             foreach (Partita partita in lpart)
             {
+                DateTime dataini = DateTime.Now;
                 npar++;
                 chess.NuovaPartita();
 
@@ -1584,6 +1588,7 @@ Nb4 55. Kd4 Nc6+ 56. Ke4 Nb4 57. Bd2 Nc6 58. Bc3 Ne7 1/2-1/2
                     Assert.IsTrue(chess.MuoviPezzo(mossa), $"Event {partita.Event}, Round {partita.Round}, Mossa {nmos}");
                     //chess.GetScacchieraString();
                 }
+                Trace.WriteLine($"partita {npar} di {lpart.Count}, mosse {lmosse.Count} ({(int)(DateTime.Now-dataini).TotalMilliseconds} millisecondi)");
             }
         }
 
@@ -1594,11 +1599,11 @@ Nb4 55. Kd4 Nc6+ 56. Ke4 Nb4 57. Bd2 Nc6 58. Bc3 Ne7 1/2-1/2
 
             Chess chess = new Chess();
 
-            List<Partita> lpart = chess.GetPartite(partite);
+            List<Partita> lpart = chess.GetPartite(partite).OrderBy(q => q.Mosse.Length).ToList();
             int npar = 0;
-            string a = "";
             foreach (Partita partita in lpart)
             {
+                DateTime dataini = DateTime.Now;
                 npar++;
                 chess.NuovaPartita();
 
@@ -1608,8 +1613,9 @@ Nb4 55. Kd4 Nc6+ 56. Ke4 Nb4 57. Bd2 Nc6 58. Bc3 Ne7 1/2-1/2
                 {
                     nmos++;
                     Assert.IsTrue(chess.MuoviPezzo(mossa), $"Event {partita.Event}, Round {partita.Round}, Mossa {nmos}");
-                    a = chess.GetScacchieraString();
+                    //chess.GetScacchieraString();
                 }
+                Trace.WriteLine($"partita {npar} di {lpart.Count}, mosse {lmosse.Count} ({(int)(DateTime.Now - dataini).TotalMilliseconds} millisecondi)");
             }
         }
 
