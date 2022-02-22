@@ -46,19 +46,29 @@ namespace Chess.Controllers
         {
             List<Pezzo> scacchiera = null;
             Chess chess = new Chess();
+            Mossa mossa = null;
             if (numMosse == null)
                 scacchiera = Chess.GetScacchiera();
             else if (numMosse.Value > 0)
-                scacchiera = chess.GetMosse.Where(q => q.num == numMosse.Value).FirstOrDefault()?.scacchiera.Where(q => q.Posizione != null).ToList();
+            {
+                mossa = chess.GetMosse.Where(q => q.num == numMosse.Value).FirstOrDefault();
+                scacchiera = mossa?.scacchiera.Where(q => q.Posizione != null).ToList();
+            }
             else
                 scacchiera = chess.GetScacchieraInizale();
 
-            return Json(scacchiera);
+            return Json(new { scacchiera, mossa });
         }
 
         public JsonResult GetMosse()
         {
             return Json(new Chess().GetMosse);
+        }
+
+        public JsonResult GetPosizione(int tipo, int colore)
+        {
+            Pezzo pezzo = Chess.GetScacchiera().Where(q => q.Tipo == (Tipo)tipo && q.Colore == (Colore)colore).FirstOrDefault();
+            return Json(pezzo?.Posizione);
         }
 
         public JsonResult NuovaScacchiera()
@@ -78,7 +88,7 @@ namespace Chess.Controllers
                     break;
             }
 
-            return Json(Chess.GetScacchiera());
+            return Json(new { scacchiera = Chess.GetScacchiera(), mossa = chess.GetMosse.Last() });
         }
 
 

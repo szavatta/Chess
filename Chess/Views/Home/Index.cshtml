@@ -16,6 +16,15 @@
             </select>
         </div>
         <div style="display: inline-block; ">
+            @for (int riga = 8; riga >= 1; riga--)
+            {
+                <div style="height: 60px; padding-bottom: 20px">
+                    @riga
+                </div>
+            }
+        </div>
+
+        <div style="display: inline-block; ">
             <div style="margin-bottom:10px">
                 <div style="display: inline-block">
                     <div class="turno turno0" colore="0" style="background-color: white; border-radius: 25px; border: 1px solid;width:25px;height:25px; margin-right: 10px"></div>
@@ -68,8 +77,8 @@
 
         $(document).ready(function () {
 
-            DisegnaScacchiera();
             DisegnaMosse();
+            DisegnaScacchiera($("#boxmosse").val());
             SottoScacco(null, null, 0);
             if ($(".pallinorosso").length == 0) {
                 SottoScacco(null, null, 1);
@@ -119,6 +128,7 @@
                 } else if ($(this).hasClass("selezionato")) {
                     $(".divq").removeClass("pallinoazzurro");
                     $(".divq").removeClass("selezionato");
+                    $(".pallinoverde1").removeClass("pallinoverde1").addClass("pallinoverde");
                 } else if ($(this).attr("poscolonna") == undefined) {
                     $(".divq").removeClass("selezionato");
                     $(this).addClass("selezionato");
@@ -140,6 +150,7 @@
                         var op = MuoviPezzo($(init).attr("posriga"), $(init).attr("poscolonna"), $(this).attr("posriga"), $(this).attr("poscolonna"));
                         if (op == "") {
                             SottoScacco($(this).attr("posriga"), $(this).attr("poscolonna"));
+                            $(".pallinoverde1").removeClass("pallinoverde1");
                         } else if (op == "colore") {
                             $(".divq").removeClass("selezionato");
                             $(this).addClass("selezionato");
@@ -226,7 +237,7 @@
                     txtPartita: $("#txtPartita").val()
                 },
                 success: function (data) {
-                    DisegnaPezziInScacchiera(data);
+                    DisegnaPezziInScacchiera(data.scacchiera, data.mossa);
                     DisegnaMosse();
                     $(".turno").removeClass("turnoattivo");
                     $(".turno0").addClass("turnoattivo");
@@ -257,6 +268,24 @@
 
         }
 
+        function GetPosizione(tipo, colore) {
+            var ret = null;
+            $.ajax({
+                url: '/Home/Getposizione',
+                dataType: 'json',
+                async: false,
+                type: 'post',
+                data: {
+                    tipo: tipo,
+                    colore: colore
+                },
+                success: function (pos) {
+                    ret = pos;
+                }
+            });
+            return ret;
+        }
+
         function NuovaScacchiera() {
             $.ajax({
                 url: '/Home/NuovaScacchiera',
@@ -283,7 +312,7 @@
                     numMosse: numMosse
                 },
                 success: function (data) {
-                    DisegnaPezziInScacchiera(data);
+                    DisegnaPezziInScacchiera(data.scacchiera, data.mossa);
                 }
             });
         }
@@ -335,6 +364,8 @@
                     }
                     $(".divq").removeClass("pallinoazzurro");
                     $(".divq").removeClass("selezionato");
+                    $(".pos" + data.mossa.da.riga + "-" + data.mossa.da.colonna).addClass("pallinoverde");
+                    $(".pos" + data.mossa.a.riga + "-" + data.mossa.a.colonna).addClass("pallinoverde");
                     ret = data.op;
                 },
                 error: function (data) {
@@ -383,12 +414,22 @@
             return pezzo;
         }
 
-        function DisegnaPezziInScacchiera(data) {
+        function DisegnaPezziInScacchiera(scacchiera, mossa) {
             PulisciScacchiera();
-            data.forEach(function (item) {
+            scacchiera.forEach(function (item) {
                 var path = "/Content/Images/" + item.tipo + item.colore + ".png";
                 $(".pos" + item.posizione.riga + "-" + item.posizione.colonna).find(".img").show().attr("src", path);
             });
+            if (mossa != null && mossa != undefined) {
+                $(".pos" + mossa.da.riga + "-" + mossa.da.colonna).addClass("pallinoverde");
+                $(".pos" + mossa.a.riga + "-" + mossa.a.colonna).addClass("pallinoverde");
+            }
+            if (mossa != undefined && (mossa.isScacco || mossa.isScaccoMatto)) {
+                var re = mossa.scacchiera.filter(q => q.tipo == 4 && q.colore != mossa.pezzo.colore)[0];
+                if (re != undefined) {
+                    $(".pos" + re.posizione.riga + "-" + re.posizione.colonna).addClass("pallinorosso");
+                }
+            }
         }
 
         function DisegnaMosse(data) {
@@ -422,7 +463,11 @@
         function DisegnaMosseDisponibili(data) {
             $(".divq").removeClass("pallinoazzurro");
             data.forEach(function (item) {
-                $(".pos" + item.riga + "-" + item.colonna).addClass("pallinoazzurro");
+                var casella = $(".pos" + item.riga + "-" + item.colonna);
+                casella.addClass("pallinoazzurro");
+                if (casella.hasClass("pallinoverde")) {
+                    casella.removeClass("pallinoverde").addClass("pallinoverde1");
+                }
             });
         }
 
@@ -430,6 +475,7 @@
             $(".divq").removeClass("pallinoazzurro");
             $(".divq").removeClass("selezionato");
             $(".divq").removeClass("pallinorosso");
+            $(".divq").removeClass("pallinoverde");
             for (var col = 1; col <= 8; col++) {
                 for (var riga = 1; riga <= 8; riga++) {
                     $(".pos" + riga + "-" + col).find(".img").hide();

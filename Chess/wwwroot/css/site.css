@@ -101,6 +101,11 @@ body {
     background-size: 100%;
 }
 
+.pallinoverde {
+    background-image: url("/Content/Images/pallinoverde.png");
+    background-repeat: no-repeat;
+    background-size: 100%;
+}
 .turnoattivo {
     border: 2px solid !important;
     border-color: red !important;

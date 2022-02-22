@@ -442,6 +442,20 @@ namespace Chess.Tests
             Assert.IsTrue(Chess.GetScacchiera().Count == 1);
         }
 
+        [TestMethod()]
+        public void Mossa_en_passant_errata()
+        {
+            Chess chess = new Chess();
+            chess.NuovaScacchiera();
+            var pedonen = new Pedone(5, 3, Colore.Nero, true);
+            var pedoneb = new Pedone(2, 2, Colore.Bianco, true);
+            var torre = new Torre(1, 1, Colore.Bianco, true);
+            bool ret1 = pedonen.Mossa(new Pos { Riga = 4, Colonna = 3 }) != null;
+            bool ret2 = pedoneb.Mossa(new Pos { Riga = 4, Colonna = 2 }) != null;
+            Assert.IsTrue(pedonen.IsMossaValida(new Pos(3,2)));
+            torre.Mossa(new Pos(8, 1));
+            Assert.IsFalse(pedonen.IsMossaValida(new Pos(3, 2)));
+        }
     }
 
     [TestClass()]

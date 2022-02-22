@@ -501,6 +501,10 @@ namespace Chess
                 posMangiato = new Pos(Posizione.Riga, pos.Colonna);
             }
 
+            Chess.GetScacchiera().Where(q => q is Pedone).ToList().ForEach(q => ((Pedone)q).EnPassant = false);
+            if (Tipo == Tipo.Pedone && Math.Abs(pos.Riga - Posizione.Riga) == 2)
+                ((Pedone)this).EnPassant = true;
+
             Pezzo mangiato = MangiaPezzo(posMangiato != null ? posMangiato : pos);
 
             Mossa mossa = new Mossa(this, Posizione, pos, mangiato);
@@ -515,7 +519,7 @@ namespace Chess
                 mossa.sMossa = mossa.sMossa.Replace("+", "#");
                 mossa.isScaccoMatto = true;
             }
-            
+
             NumMosse++;
             return mossa;
         }
@@ -883,8 +887,9 @@ namespace Chess
 
             Pezzo mangiato = MangiaPezzo(pos);
 
+            Mossa mossa = new Mossa(this, Posizione, pos, mangiato, false);
+
             //Muovi arrocco
-            bool isArrocco = false;
             if (Math.Abs(Posizione.Colonna - pos.Colonna) == 2)
             {
                 Pezzo torre = Chess.GetScacchiera().Where(q => q.Posizione.Equals(new Pos(Posizione.Riga, pos.Colonna < 5 ? 1 : 8)) && q.Tipo == Tipo.Torre).FirstOrDefault();
@@ -893,10 +898,9 @@ namespace Chess
                     Posizione = pos;
                     torre.Posizione = new Pos(Posizione.Riga, pos.Colonna < 5 ? 4 : 6);
                 }
-                isArrocco = true;
+                mossa.isArrocco = true;
             }
 
-            Mossa mossa = new Mossa(this, Posizione, pos, mangiato, isArrocco);
             new Chess().GetMosse.Add(mossa);
 
             NumMosse++;
@@ -1016,6 +1020,8 @@ namespace Chess
 
     public class Pedone : Pezzo
     {
+        public bool EnPassant { get; set; }
+
         public Pedone(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
         {
             Posizione = new Pos(posRiga, posColonna);
@@ -1088,7 +1094,7 @@ namespace Chess
                         Chess.MuoviPezzoClone(Posizione, pos1);
                     if (IsInternoScacchiera(pos1)
                         && scacchiera.Where(q => q.Posizione.Equals(pos1b)).FirstOrDefault() == null
-                        && p1 != null && p1.NumMosse == 1 && p1.Tipo == Tipo.Pedone && p1.Colore != Colore
+                        && p1 != null && p1.NumMosse == 1 && p1.Tipo == Tipo.Pedone && p1.Colore != Colore & ((Pedone)p1).EnPassant
                         && (re == null || re != null && !re.IsSottoScacco(false)))
                     {
                         lista.Add(pos1b);
