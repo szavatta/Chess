@@ -395,7 +395,7 @@ namespace Chess
                     if (pezzo == null)
                         throw new Exception("Mossa non valida");
 
-                    Mossa mossa = pezzo.Mossa(pos);
+                    Mossa mossa = pezzo.Mossa(pos, sMossa: sm);
                     if (mossa == null)
                         throw new Exception("Mossa non valida");
 
@@ -490,7 +490,7 @@ namespace Chess
 
         abstract public List<Pos> MosseDisponibili(bool testScacco = true);
 
-        public virtual Mossa Mossa(Pos pos, bool testScacco = true)
+        public virtual Mossa Mossa(Pos pos, bool testScacco = true, string sMossa = null)
         {
             Pos posMangiato = null;
             if (!IsMossaValida(pos, testScacco))
@@ -508,7 +508,7 @@ namespace Chess
 
             Pezzo mangiato = MangiaPezzo(posMangiato != null ? posMangiato : pos);
 
-            Mossa mossa = new Mossa(this, Posizione, pos, mangiato);
+            Mossa mossa = new Mossa(this, Posizione, pos, mangiato, sMossa: sMossa);
             new Chess().GetMosse.Add(mossa);
 
             Posizione = pos;
@@ -600,7 +600,7 @@ namespace Chess
 
     public class Mossa
     {
-        public Mossa(Pezzo pezzo, Pos da, Pos a, Pezzo pezzoMangiato = null, bool isArrocco = false)
+        public Mossa(Pezzo pezzo, Pos da, Pos a, Pezzo pezzoMangiato = null, bool isArrocco = false, string sMossa = null)
         {
             this.num = new Chess().GetMosse.Count + 1;
             this.pezzo = pezzo;
@@ -608,12 +608,13 @@ namespace Chess
             this.a = a;
             this.pezzoMangiato = pezzoMangiato;
             this.isArrocco = isArrocco;
+            this.sMossaOk = sMossa;
             if (pezzo != null)
             {
                 if (isArrocco)
-                    sMossa = a.Colonna < 4 ? "0-0" : "0-0-0";
+                    this.sMossa = a.Colonna < 4 ? "0-0" : "0-0-0";
                 else
-                    sMossa = $"{pezzo?.Lettera}{(char)(da?.Colonna + 96)}{da?.Riga}{(pezzoMangiato == null ? "-" : "x")}{(char)(a?.Colonna + 96)}{a?.Riga}";
+                    this.sMossa = $"{pezzo?.Lettera}{(char)(da?.Colonna + 96)}{da?.Riga}{(pezzoMangiato == null ? "-" : "x")}{(char)(a?.Colonna + 96)}{a?.Riga}";
             }
             Pezzo re = Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re && q.Colore != pezzo.Colore).FirstOrDefault();
             if (re != null)
@@ -622,7 +623,7 @@ namespace Chess
                 if (((Re)re).IsSottoScacco(false))
                 {
                     this.isScacco = true;
-                    sMossa += "+";
+                    this.sMossa += "+";
                 }
             }
                 
@@ -636,6 +637,7 @@ namespace Chess
         public bool isScacco { get; set; }
         public bool isScaccoMatto { get; set; }
         public string sMossa { get; set; }
+        public string sMossaOk { get; set; }
         public List<Pezzo> scacchiera { get; set; }
     }
 
@@ -881,14 +883,14 @@ namespace Chess
                 Chess.AggiungePezzo(this);
         }
 
-        public override Mossa Mossa(Pos pos, bool testScacco = true)
+        public override Mossa Mossa(Pos pos, bool testScacco = true, string sMossa = null)
         {
             if (!IsMossaValida(pos))
                 return null;
 
             Pezzo mangiato = MangiaPezzo(pos);
 
-            Mossa mossa = new Mossa(this, Posizione, pos, mangiato, false);
+            Mossa mossa = new Mossa(this, Posizione, pos, mangiato, false, sMossa);
 
             //Muovi arrocco
             if (Math.Abs(Posizione.Colonna - pos.Colonna) == 2)

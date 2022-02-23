@@ -12,10 +12,10 @@
                 <i class="fas fa-step-forward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
                 <i class="fas fa-fast-forward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
             </div>
-            <select id="boxmosse" name="sometext" size="20" style="width: 110px">
+            <select id="boxmosse" size="20" style="width: 110px">
             </select>
         </div>
-        <div style="display: inline-block; ">
+        <div style="display: none; ">
             @for (int riga = 8; riga >= 1; riga--)
             {
                 <div style="height: 60px; padding-bottom: 20px">
@@ -63,6 +63,9 @@
                 }
             </div>
         }
+    </div>
+    <div id="boxmosseOk" style="border: 1px solid">
+        
     </div>
 
     <div style="margin-top:10px">
@@ -183,6 +186,13 @@
             $("#boxmosse").click(function (e) {
                 var num = $(this).val();
                 DisegnaScacchiera(num);
+            })
+
+            $("#boxmosseOk .spanmossa").click(function (e) {
+                var num = $(this).attr("value");
+                DisegnaScacchiera(num);
+                $(".spanmossa").removeClass("selected");
+                $(this).addClass("selected");
             })
 
         });
@@ -434,6 +444,7 @@
 
         function DisegnaMosse(data) {
             $("#boxmosse").html("");
+            $("#boxmosseOk").html("");
             if (data == null) {
                 $.ajax({
                     url: '/Home/GetMosse',
@@ -448,6 +459,7 @@
                 });
 
             }
+
             var max = 0;
             $("#boxmosse").append("<option value='0'>--- Start ---</option>");
             var cont = 0;
@@ -457,6 +469,17 @@
                 max = item.num;
             });
             $("#boxmosse option[value='" + max + "']").attr("selected", "true");
+
+            $("#boxmosseOk").append("<a class='spanmossa' href='#' value='0'><span>--- Start ---</span></a>");
+            var cont = 0;
+            data.forEach(function (item) {
+                cont++;
+                if (cont % 2 != 0) {
+                    $("#boxmosseOk").append("<span style='margin-right: 5px'>" + cont + ".</span>");
+                }
+                $("#boxmosseOk").append("<a class='spanmossa' href='#' value='" + item.num + "'><span>" + item.sMossaOk + "</span></a>");
+                max = item.num;
+            });
 
         }
 

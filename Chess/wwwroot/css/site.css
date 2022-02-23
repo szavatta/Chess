@@ -106,7 +106,31 @@ body {
     background-repeat: no-repeat;
     background-size: 100%;
 }
+
 .turnoattivo {
     border: 2px solid !important;
     border-color: red !important;
+}
+
+.spanmossa {
+    padding-right: 5px;
+}
+
+.spanmossa.selected {
+    color: red;
+}
+
+a:link {
+    color: black;
+}
+
+a:visited {
+    color: black;
+}
+a:hover {
+    color: red;
+}
+
+a:link {
+    text-decoration: none;
 }
