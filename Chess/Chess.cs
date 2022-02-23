@@ -224,15 +224,33 @@ namespace Chess
 
                     partita.Mosse += riga.Replace("\n"," ") + " ";
                 }
+
                 if (string.IsNullOrEmpty(riga) && !string.IsNullOrEmpty(partita?.Mosse))
                 {
+                    string temp = partita.Mosse;
+                    while (partita.Mosse.IndexOf("{") >= 0)
+                    {
+                        temp = temp.Remove(temp.IndexOf("{"), temp.IndexOf("}") - temp.IndexOf("{") + 1);
+                        partita.Mosse = temp;
+                    }
+                    partita.Mosse = partita.Mosse.Replace("  ", " ").Replace("  ", " ");
                     partite.Add(partita);
                     partita = null;
                 }
             }
 
             if (partita != null)
+            {
+                string temp = partita.Mosse;
+                while (partita.Mosse.IndexOf("{") >= 0)
+                {
+                    temp = temp.Remove(temp.IndexOf("{"), temp.IndexOf("}") - temp.IndexOf("{") + 1);
+                    partita.Mosse = temp;
+                }
+                partita.Mosse = partita.Mosse.Replace("  ", " ").Replace("  ", " ");
+
                 partite.Add(partita);
+            }
 
 
             return partite;
