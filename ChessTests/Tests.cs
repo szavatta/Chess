@@ -1580,6 +1580,75 @@ Nb4 55. Kd4 Nc6+ 56. Ke4 Nb4 57. Bd2 Nc6 58. Bc3 Ne7 1/2-1/2
             var c = chess.GetScacchieraString();
         }
 
+        [TestMethod()]
+        public void Test20()
+        {
+            Chess chess = new Chess();
+            chess.NuovaPartita();
+            string partita = @"
+1.e4 {[% clk 0:00:00]}
+c5 {[% clk 0:05:04]}
+2.Nf3 {[% clk 0:00:00]}
+d6 {[% clk 0:05:05]}
+3.d4 {[% clk 0:00:02]}
+cxd4 {[% clk 0:05:05]}
+4.Nxd4 {[% clk 0:00:02]}
+Nf6 {[% clk 0:05:05]}
+5.Nc3 {[% clk 0:00:04]}
+a6 {[% clk 0:04:52]}
+6.Bg5 {[% clk 0:00:04]}
+e6 {[% clk 0:04:45]}
+7.f4 {[% clk 0:00:04]}
+Qc7 {[% clk 0:04:45]}
+8.Bxf6 {[% clk 0:00:00]}
+gxf6 {[% clk 0:04:45]}
+9.Qf3 {[% clk 0:00:00]}
+b5 {[% clk 0:04:25]}
+10.a3 {[% clk 0:00:00]}
+Nc6 {[% clk 0:04:26]}
+11.O-O-O {[% clk 0:04:42]}
+Nxd4 {[% clk 0:04:43]}
+12.Rxd4 {[% clk 0:04:42]}
+Rb8 {[% clk 0:04:11]}
+13.Be2 {[% clk 0:04:31]}
+Bd7 {[% clk 0:02:33]}
+14.f5 {[% clk 0:04:26]}
+Qc5 {[% clk 0:02:24]}
+15.Rhd1 {[% clk 0:03:54]}
+Qe5 {[% clk 0:02:11]}
+16.Qh5 {[% clk 0:03:31]}
+Be7 {[% clk 0:01:09]}
+17.fxe6 {[% clk 0:03:08]}
+Bxe6 {[% clk 0:01:10]}
+18.Nd5 {[% clk 0:02:57]}
+Qxh5 {[% clk 0:01:06]}
+19.Bxh5 {[% clk 0:02:49]}
+Rg8 {[% clk 0:00:34]}
+20.Nc7+ {[% clk 0:02:19]}
+Kd8 {[% clk 0:00:21]}
+21.Nxa6 {[% clk 0:02:15]}
+Rb6 {[% clk 0:00:00]}
+22.Nb4 {[% clk 0:02:06]}
+Rxg2 {[% clk 0:00:01]}
+23.R4d2 {[% clk 0:01:57]}
+Rxd2 {[% clk 0:00:00]}
+24.Kxd2 {[% clk 0:01:56]}
+f5 {[% clk 0:00:00]}
+25.exf5 {[% clk 0:01:46]}
+Bg5+ {[% clk 0:00:01]}
+26.Ke2 {[% clk 0:01:43]}
+1-0
+            ";
+            List<string> mosse = chess.GetStringMosse(partita);
+
+            foreach (string mossa in mosse)
+            {
+                Assert.IsTrue(chess.MuoviPezzo(mossa));
+            }
+
+            var c = chess.GetScacchieraString();
+        }
+
 
     }
 

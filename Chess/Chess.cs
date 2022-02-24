@@ -122,7 +122,16 @@ namespace Chess
         public List<string> GetStringMosse(string partita)
         {
             List<string> mosse = new List<string>();
+            string temp = partita;
+            while (partita.IndexOf("{") >= 0)
+            {
+                temp = temp.Remove(temp.IndexOf("{"), temp.IndexOf("}") - temp.IndexOf("{") + 1);
+                partita = temp;
+            }
+            partita = partita.Replace("  ", " ").Replace("  ", " ");
+
             string part = partita.Replace("\r\n", " ").Replace(".", ". ").Trim();
+
             string mossa = "";
             foreach(string item in part.Split(' '))
             {
