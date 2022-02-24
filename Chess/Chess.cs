@@ -349,12 +349,19 @@ namespace Chess
                     int? colda = null;
                     int? rigda = null;
                     Tipo? promozione = null;
+                    bool scacco = false;
 
                     string sm1 = sm;
                     if (sm1.Last() == '+') //Scacco
+                    {
                         sm1 = sm1.Remove(sm1.Length - 1, 1);
+                        scacco = true;
+                    }
                     else if (sm1.Last() == '#') //Scacco matto
+                    {
                         sm1 = sm1.Remove(sm1.Length - 1, 1);
+                        scacco = true;
+                    }
 
                     if (sm1 == "O-O")
                     {
@@ -417,7 +424,17 @@ namespace Chess
                     {
                         Chess.ScacchieraClone = new List<Pezzo>();
                         if (pezzo == null && (colda == null || p.Posizione.Colonna == colda) && (rigda == null || p.Posizione.Riga == rigda) && p.IsMossaValida(pos, true))
-                            pezzo = p;
+                        {
+                            if (scacco)
+                            {
+                                Chess.MuoviPezzoClone(p.Posizione, pos);
+                                Re re = (Re)Chess.ScacchieraClone.Where(q => q.Tipo == Tipo.Re && q.Colore != colore).FirstOrDefault();
+                                if (re != null && re.IsSottoScacco(false))
+                                    pezzo = p;
+                            }
+                            else
+                                pezzo = p;
+                        }
                     }
 
                     if (pezzo == null)
