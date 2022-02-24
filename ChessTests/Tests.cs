@@ -626,11 +626,10 @@ namespace Chess.Tests
             Chess chess = new Chess();
             chess.NuovaPartita();
 
-            var lre = Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re).FirstOrDefault();
+            var lre = Chess.GetScacchiera(tipo: Tipo.Re).FirstOrDefault();
             var scatto = ((Re)lre).IsSottoScacco();
             
         }
-
 
     }
 
@@ -799,7 +798,7 @@ namespace Chess.Tests
             Assert.IsTrue(chess.MuoviPezzo("39. d6 b3 "));
             Assert.IsTrue(chess.MuoviPezzo("40. d7# "));
 
-            Pezzo re = Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re && q.Colore == Colore.Nero).FirstOrDefault();
+            Pezzo re = Chess.GetScacchiera(tipo: Tipo.Re, colore: Colore.Nero).FirstOrDefault();
 
             Assert.IsTrue(re.MosseDisponibili().Count == 0);
         }
@@ -922,8 +921,8 @@ namespace Chess.Tests
             Assert.IsTrue(chess.MuoviPezzo("39. Bf1 a5 "));
             Assert.IsTrue(chess.MuoviPezzo("40. Bc4 h4"));
 
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Bianco).Count() == 4);
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Nero).Count() == 8);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Bianco).Count() == 4);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Nero).Count() == 8);
         }
 
         [TestMethod()]
@@ -997,8 +996,8 @@ namespace Chess.Tests
             Assert.IsTrue(chess.MuoviPezzo("64. Rh2+ Kb3 "));
             Assert.IsTrue(chess.MuoviPezzo("65. Qxc3+"));
 
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Bianco).Count() == 3);
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Nero).Count() == 2);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Bianco).Count() == 3);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Nero).Count() == 2);
         }
 
         [TestMethod()]
@@ -1072,8 +1071,8 @@ namespace Chess.Tests
             Assert.IsTrue(chess.MuoviPezzo("64. Qe7 Qf5 "));
             Assert.IsTrue(chess.MuoviPezzo("65. Nf6+ Kg7"));
 
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Bianco).Count() == 7);
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Nero).Count() == 8);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Bianco).Count() == 7);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Nero).Count() == 8);
         }
 
         [TestMethod()]
@@ -1150,8 +1149,8 @@ namespace Chess.Tests
             Assert.IsTrue(chess.MuoviPezzo("60. Kf5 Rxa2 "));
             Assert.IsTrue(chess.MuoviPezzo("61. Ke4 1-0"));
 
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Bianco).Count() == 4);
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Nero).Count() == 2);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Bianco).Count() == 4);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Nero).Count() == 2);
         }
 
         [TestMethod()]
@@ -1296,8 +1295,8 @@ namespace Chess.Tests
             Assert.IsTrue(chess.MuoviPezzo("75. Ka7 h3 "));
             Assert.IsTrue(chess.MuoviPezzo("76. Rh7 Rb3 1/2-1/2"));
 
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Bianco).Count() == 4);
-            Assert.IsTrue(Chess.GetScacchiera().Where(q => q.Colore == Colore.Nero).Count() == 3);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Bianco).Count() == 4);
+            Assert.IsTrue(Chess.GetScacchiera(colore: Colore.Nero).Count() == 3);
         }
 
         [TestMethod()]
@@ -1576,6 +1575,8 @@ Nb4 55. Kd4 Nc6+ 56. Ke4 Nb4 57. Bd2 Nc6 58. Bc3 Ne7 1/2-1/2
             {
                 Assert.IsTrue(chess.MuoviPezzo(mossa));
             }
+            Assert.AreEqual(3, Chess.GetScacchiera(colore: Colore.Bianco).Count());
+            Assert.AreEqual(2, Chess.GetScacchiera(colore: Colore.Nero).Count());
 
             var c = chess.GetScacchieraString();
         }

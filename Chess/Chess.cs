@@ -15,13 +15,23 @@ namespace Chess
         private static List<Pezzo> Scacchiera = new List<Pezzo>();
         private static List<Pezzo> ScacchieraClone = new List<Pezzo>();
         private static List<Mossa> Mosse = new List<Mossa>();
-        
-        public static List<Pezzo> GetScacchiera(bool clone = false) 
+
+        public static List<Pezzo> GetScacchiera(bool clone = false, Pos posizione = null, Colore? colore = null, Tipo? tipo = null)
         {
             if (clone)
                 return ScacchieraClone = Scacchiera.Where(q => q.Posizione != null).Select(item => (Pezzo)item.Clone()).ToList();
             else
-                return Scacchiera.Where(q => q.Posizione != null).ToList();
+            {
+                var ret = Scacchiera.Where(q => q.Posizione != null).ToList();
+                if (posizione != null)
+                    ret = ret.Where(q => q.Posizione.Equals(posizione)).ToList();
+                if (colore != null)
+                    ret = ret.Where(q => q.Colore == colore).ToList();
+                if (tipo != null)
+                    ret = ret.Where(q => q.Tipo == tipo).ToList();
+
+                return ret;
+            }
         }
 
         public static Pezzo GetScacchiera(int riga, int colonna)
@@ -113,7 +123,7 @@ namespace Chess
         }
 
         public Pezzo GetPezzo(Pos pos)
-            => Chess.GetScacchiera().Where(q => q.Posizione.Equals(pos)).FirstOrDefault();
+            => Chess.GetScacchiera(posizione: pos).FirstOrDefault();
 
         public static List<Pezzo> GetScacchieraClone() => ScacchieraClone.Count() > 0 ? ScacchieraClone : GetScacchiera(true);
 
@@ -348,12 +358,19 @@ namespace Chess
                     int? colda = null;
                     int? rigda = null;
                     Tipo? promozione = null;
+                    bool scacco = false;
 
                     string sm1 = sm;
                     if (sm1.Last() == '+') //Scacco
+                    {
                         sm1 = sm1.Remove(sm1.Length - 1, 1);
+                        scacco = true;
+                    }
                     else if (sm1.Last() == '#') //Scacco matto
+                    {
                         sm1 = sm1.Remove(sm1.Length - 1, 1);
+                        scacco = true;
+                    }
 
                     if (sm1 == "O-O")
                     {
@@ -412,11 +429,21 @@ namespace Chess
 
                     Pezzo pezzo = null;
                     Pos pos = new Pos(riga, colonna);
-                    foreach (Pezzo p in Chess.GetScacchiera().Where(q => q.Colore == colore && q.Tipo == tipo))
+                    foreach (Pezzo p in Chess.GetScacchiera(colore: colore, tipo: tipo))
                     {
                         Chess.ScacchieraClone = new List<Pezzo>();
                         if (pezzo == null && (colda == null || p.Posizione.Colonna == colda) && (rigda == null || p.Posizione.Riga == rigda) && p.IsMossaValida(pos, true))
-                            pezzo = p;
+                        {
+                            if (scacco)
+                            {
+                                Chess.MuoviPezzoClone(p.Posizione, pos);
+                                Re re = (Re)Chess.ScacchieraClone.Where(q => q.Tipo == Tipo.Re && q.Colore != colore).FirstOrDefault();
+                                if (re != null && re.IsSottoScacco(false))
+                                    pezzo = p;
+                            }
+                            else
+                                pezzo = p;
+                        }
                     }
 
                     if (pezzo == null)
@@ -428,7 +455,7 @@ namespace Chess
 
                     if (promozione != null)
                     {
-                        Pezzo old = Chess.GetScacchiera().Where(q => q.Posizione == mossa.a).FirstOrDefault();
+                        Pezzo old = new Chess().GetPezzo(mossa.a);
                         switch (promozione.Value)
                         {
                             case Tipo.Pedone:
@@ -523,7 +550,7 @@ namespace Chess
             if (!IsMossaValida(pos, testScacco))
                 return null;
 
-            if (Tipo == Tipo.Pedone && pos.Colonna != Posizione.Colonna && Chess.GetScacchiera().Where(q => q.Posizione.Equals(pos)).FirstOrDefault() == null)
+            if (Tipo == Tipo.Pedone && pos.Colonna != Posizione.Colonna && new Chess().GetPezzo(pos) == null)
             {
                 //En passant
                 posMangiato = new Pos(Posizione.Riga, pos.Colonna);
@@ -643,7 +670,7 @@ namespace Chess
                 else
                     this.sMossa = $"{pezzo?.Lettera}{(char)(da?.Colonna + 96)}{da?.Riga}{(pezzoMangiato == null ? "-" : "x")}{(char)(a?.Colonna + 96)}{a?.Riga}";
             }
-            Pezzo re = Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re && q.Colore != pezzo.Colore).FirstOrDefault();
+            Pezzo re = Chess.GetScacchiera(tipo: Tipo.Re, colore: pezzo.Colore).FirstOrDefault();
             if (re != null)
             {
                 Chess.MuoviPezzoClone(da, a);
@@ -975,13 +1002,14 @@ namespace Chess
             }
 
             //Arrocco
+            var chess = new Chess();
             int rigaa = Colore == Colore.Bianco ? 1 : 8;
             if (Posizione.Riga == rigaa && Posizione.Colonna == 5 && NumMosse == 0)
             {
                 for (int i = 0; i < 2; i++)
                 {
                     Pos posa = new Pos(rigaa, i == 0 ? 8 : 1);
-                    Pezzo torrea = Chess.GetScacchiera().Where(q => q.Posizione.Equals(posa)).FirstOrDefault();
+                    Pezzo torrea = chess.GetPezzo(posa);
                     if (torrea != null && torrea.Tipo == Tipo.Torre && torrea.Colore == Colore && torrea.NumMosse == 0)
                     {
                         List<Pos> lpos = i == 0
@@ -994,7 +1022,7 @@ namespace Chess
                         {
                             isAttaccato = posb.IsAttaccato(Colore);
                             if (!isAttaccato)
-                                isAttaccato = Chess.GetScacchiera().Where(q => q.Posizione.Equals(posb)).FirstOrDefault() != null;
+                                isAttaccato = chess.GetPezzo(posb) != null;
                             if (isAttaccato) break;
                         }
                         if (!isAttaccato)
@@ -1037,7 +1065,7 @@ namespace Chess
 
         public bool IsScaccoMatto(bool testRe = true, bool clone = false)
         {
-            foreach(Pezzo pezzo in Chess.GetScacchiera().Where(q => q.Colore == Colore))
+            foreach (Pezzo pezzo in Chess.GetScacchiera(colore: Colore))
             {
                 if (pezzo.MosseDisponibili().Count > 0)
                     return false;
