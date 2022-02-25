@@ -16,7 +16,7 @@ namespace Chess
         private static List<Pezzo> ScacchieraClone = new List<Pezzo>();
         private static List<Mossa> Mosse = new List<Mossa>();
 
-        public static List<Pezzo> GetScacchiera(bool clone = false, Pos posizione = null, Colore? colore = null, Tipo? tipo = null)
+        public static List<Pezzo> GetScacchiera(bool clone = false, Pos posizione = null, Colore? colore = null, Colore? nocolore = null, Tipo? tipo = null)
         {
             if (clone)
                 return ScacchieraClone = Scacchiera.Where(q => q.Posizione != null).Select(item => (Pezzo)item.Clone()).ToList();
@@ -27,6 +27,8 @@ namespace Chess
                     ret = ret.Where(q => q.Posizione.Equals(posizione)).ToList();
                 if (colore != null)
                     ret = ret.Where(q => q.Colore == colore).ToList();
+                if (nocolore != null)
+                    ret = ret.Where(q => q.Colore != nocolore).ToList();
                 if (tipo != null)
                     ret = ret.Where(q => q.Tipo == tipo).ToList();
 
@@ -473,9 +475,10 @@ namespace Chess
                     if (scacco)
                     {
                         Chess.ScacchieraClone = new List<Pezzo>();
-                        Re re = (Re)Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re && q.Colore != colore).FirstOrDefault();
+                        Re re = (Re)Chess.GetScacchiera(tipo: Tipo.Re, nocolore: colore).FirstOrDefault();
                         if (re == null || re != null && !re.IsSottoScacco(false))
                             ret = false;
+                        //new Chess().GetScacchieraString();
                     }
 
                 }
@@ -574,7 +577,7 @@ namespace Chess
             Posizione = pos;
             mossa.scacchiera = Chess.GetScacchieraTotale().Select(item => (Pezzo)item.Clone()).ToList();
 
-            Re re = (Re)Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re && q.Colore != Colore).FirstOrDefault();
+            Re re = (Re)Chess.GetScacchiera(tipo: Tipo.Re, nocolore: Colore).FirstOrDefault();
             if (re != null && re.IsScaccoMatto())
             {
                 mossa.sMossa = mossa.sMossa.Replace("+", "#");
@@ -590,7 +593,7 @@ namespace Chess
         
         public Pezzo MangiaPezzo(Pos pos)
         {
-            Pezzo old = Chess.GetScacchiera().Where(q => q.Posizione.Equals(pos) && q.Colore != Colore).FirstOrDefault();
+            Pezzo old = Chess.GetScacchiera(posizione:pos, nocolore: Colore).FirstOrDefault();
             if (old != null)
                 old.Posizione = null;
                 //Chess.GetScacchiera().Remove(old);
@@ -955,7 +958,7 @@ namespace Chess
             //Muovi arrocco
             if (Math.Abs(Posizione.Colonna - pos.Colonna) == 2)
             {
-                Pezzo torre = Chess.GetScacchiera().Where(q => q.Posizione.Equals(new Pos(Posizione.Riga, pos.Colonna < 5 ? 1 : 8)) && q.Tipo == Tipo.Torre).FirstOrDefault();
+                Pezzo torre = Chess.GetScacchiera(posizione: new Pos(Posizione.Riga, pos.Colonna < 5 ? 1 : 8), tipo: Tipo.Torre).FirstOrDefault();
                 if (torre != null)
                 {
                     Posizione = pos;

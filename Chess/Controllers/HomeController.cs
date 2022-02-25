@@ -67,7 +67,7 @@ namespace Chess.Controllers
 
         public JsonResult GetPosizione(int tipo, int colore)
         {
-            Pezzo pezzo = Chess.GetScacchiera().Where(q => q.Tipo == (Tipo)tipo && q.Colore == (Colore)colore).FirstOrDefault();
+            Pezzo pezzo = Chess.GetScacchiera(tipo: (Tipo)tipo, colore: (Colore)colore).FirstOrDefault();
             return Json(pezzo?.Posizione);
         }
 
@@ -95,7 +95,7 @@ namespace Chess.Controllers
         public JsonResult MosseDisponibili(int riga, int colonna)
         {
             List<Pos> ret = new List<Pos>();
-            Pezzo pezzo = Chess.GetScacchiera().Where(q => q.Posizione.Riga == riga && q.Posizione.Colonna == colonna).FirstOrDefault();
+            Pezzo pezzo = Chess.GetScacchiera(riga, colonna);
             if (pezzo != null)
                 ret = pezzo.MosseDisponibili();
 
@@ -108,8 +108,8 @@ namespace Chess.Controllers
             if (initRiga != finRiga || initColonna != finColonna)
                 mossa = chess.MuoviPezzo(new Pos { Riga = initRiga, Colonna = initColonna }, new Pos { Riga = finRiga, Colonna = finColonna });
 
-            var pinit = Chess.GetScacchiera().Where(q => q.Posizione.Riga == initRiga && q.Posizione.Colonna == initColonna).FirstOrDefault();
-            var pfin = Chess.GetScacchiera().Where(q => q.Posizione.Riga == finRiga && q.Posizione.Colonna == finColonna).FirstOrDefault();
+            var pinit = Chess.GetScacchiera(initRiga, initColonna);
+            var pfin = Chess.GetScacchiera(finRiga, finColonna);
 
             string op = "";
             if (pfin == null)
@@ -127,12 +127,12 @@ namespace Chess.Controllers
             Pezzo re = null;
             if (colore == null)
             {
-                Pezzo pezzo = Chess.GetScacchiera().Where(q => q.Posizione.Riga == riga && q.Posizione.Colonna == colonna).FirstOrDefault();
+                Pezzo pezzo = Chess.GetScacchiera(riga, colonna);
                 colore = pezzo?.Colore;
             }
             if (colore != null)
             {
-                re = Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re && q.Colore != colore).FirstOrDefault();
+                re = Chess.GetScacchiera(tipo: Tipo.Re, nocolore: colore).FirstOrDefault();
                 Chess.GetScacchiera(true);
                 isSottoScacco = re is Re && ((Re)re).IsSottoScacco(false);
             }
@@ -148,7 +148,7 @@ namespace Chess.Controllers
         public JsonResult EliminaPezzo(int riga, int colonna)
         {
             var chess = new Chess();
-            Pezzo pezzo = Chess.GetScacchiera().Where(q => q.Posizione.Riga == riga && q.Posizione.Colonna == colonna).FirstOrDefault();
+            Pezzo pezzo = Chess.GetScacchiera(riga, colonna);
             if (pezzo != null)
                 Chess.GetScacchieraTotale().Remove(pezzo);
 
@@ -175,7 +175,7 @@ namespace Chess.Controllers
 
         public JsonResult GetPezzo(int riga, int colonna)
         {
-            Pezzo pezzo = Chess.GetScacchiera().Where(q => q.Posizione.Riga == riga && q.Posizione.Colonna == colonna).FirstOrDefault();
+            Pezzo pezzo = Chess.GetScacchiera(riga, colonna);
             return Json(pezzo);
         }
 
