@@ -431,18 +431,9 @@ namespace Chess
                     Pos pos = new Pos(riga, colonna);
                     foreach (Pezzo p in Chess.GetScacchiera(colore: colore, tipo: tipo))
                     {
-                        Chess.ScacchieraClone = new List<Pezzo>();
                         if (pezzo == null && (colda == null || p.Posizione.Colonna == colda) && (rigda == null || p.Posizione.Riga == rigda) && p.IsMossaValida(pos, true))
                         {
-                            if (scacco)
-                            {
-                                Chess.MuoviPezzoClone(p.Posizione, pos);
-                                Re re = (Re)Chess.ScacchieraClone.Where(q => q.Tipo == Tipo.Re && q.Colore != colore).FirstOrDefault();
-                                if (re != null && re.IsSottoScacco(false))
-                                    pezzo = p;
-                            }
-                            else
-                                pezzo = p;
+                             pezzo = p;
                         }
                     }
 
@@ -478,6 +469,15 @@ namespace Chess
                         }
                         old.Posizione = null;
                     }
+
+                    if (scacco)
+                    {
+                        Chess.ScacchieraClone = new List<Pezzo>();
+                        Re re = (Re)Chess.GetScacchiera().Where(q => q.Tipo == Tipo.Re && q.Colore != colore).FirstOrDefault();
+                        if (re == null || re != null && !re.IsSottoScacco(false))
+                            ret = false;
+                    }
+
                 }
 
             }
@@ -492,6 +492,12 @@ namespace Chess
             return ret;
         }
 
+        /// <summary>
+        /// Muove il pezzo sulla scacchiera clone.
+        /// </summary>
+        /// <param name="da">Posizione iniziale</param>
+        /// <param name="a">Posizione finale</param>
+        /// <returns>Pezzo dopo la mossa</returns>
         public static Pezzo MuoviPezzoClone(Pos da, Pos a)
         {
             var sc = Chess.GetScacchiera(true);
@@ -509,6 +515,7 @@ namespace Chess
         public void InitialPosition() 
         {
             Scacchiera = new Chess().GetScacchieraInizale();
+            Chess.MuoviPezzoClone()
         }
        
     }
