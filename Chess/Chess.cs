@@ -515,7 +515,6 @@ namespace Chess
         public void InitialPosition() 
         {
             Scacchiera = new Chess().GetScacchieraInizale();
-            Chess.MuoviPezzoClone()
         }
        
     }
