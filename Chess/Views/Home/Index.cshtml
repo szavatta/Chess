@@ -5,16 +5,6 @@
 <div class="text-center">
 
     <div style="margin-bottom:10px">
-        <div style="display: inline-block; ">
-            <div>
-                <i class="fas fa-fast-backward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
-                <i class="fas fa-step-backward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
-                <i class="fas fa-step-forward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
-                <i class="fas fa-fast-forward mmosse" onMouseOver="this.style.cursor='pointer'"></i>
-            </div>
-            <select id="boxmosse" size="20" style="width: 110px">
-            </select>
-        </div>
         <div style="display: none; ">
             @for (int riga = 8; riga >= 1; riga--)
             {
@@ -42,9 +32,19 @@
                     <div style="display:flex">
                         @for (int col = 1; col <= 8; col++)
                         {
-                            <div class="@($"pos{riga}-{col}") divq" posRiga="@riga" posColonna="@col" style="background-color: @((riga+col) % 2 == 0 ? "black" : "white")">
-                                <img class="img" style="display:none" />
-                            </div>
+                        <div class="@($"pos{riga}-{col}") divq" posRiga="@riga" posColonna="@col" style="background-color: @((riga+col) % 2 == 0 ? "black" : "white")">
+                            @if (riga == 1)
+                            {
+                                <div class="numcolonna">@((char)(col+96))</div>
+                            }
+                            @if (col == 1)
+                            {
+                                <div class="numriga">@riga</div>
+                            }
+
+                            <img class="img" style="display:none" />
+
+                        </div>
                         }
                     </div>
                 }
@@ -64,8 +64,14 @@
             </div>
         }
     </div>
+    <div id="buttonmove" style="margin-bottom:10px">
+        <button type="button" class="btn btn-outline-secondary btnmossa"><<</button>
+        <button type="button" class="btn btn-outline-secondary btnmossa"><</button>
+        <button type="button" class="btn btn-outline-secondary btnmossa">></button>
+        <button type="button" class="btn btn-outline-secondary btnmossa">>></button>
+    </div>
     <div id="boxmosseOk" style="border: 1px solid">
-        
+
     </div>
 
     <div style="margin-top:10px">
@@ -79,14 +85,14 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-
+            PosizioneNumeroRigheColonne();
             DisegnaMosse();
-            DisegnaScacchiera($("#boxmosse").val());
+            DisegnaScacchiera();
             SottoScacco(null, null, 0);
             if ($(".pallinorosso").length == 0) {
                 SottoScacco(null, null, 1);
             }
-            $(".turno" + ($("#boxmosse").children().length - 1) % 2).addClass("turnoattivo");
+            $("#boxmosseOk").children(".divmossa").last().addClass("selected");
 
             $(".img").draggable({
                 revert: "invalid",
@@ -163,42 +169,37 @@
                 }
             })
 
-            $(".mmosse").click(function (e) {
-                var val = parseInt($("#boxmosse").val());
-                
-                if ($(this).hasClass("fa-fast-backward")) {
-                    val = 0;
-                } else if ($(this).hasClass("fa-step-backward")) {
-                    val -= 1;
-                } else if ($(this).hasClass("fas fa-step-forward")) {
-                    val += 1;
-                } else if ($(this).hasClass("fa-fast-forward")) {
-                    val = $("#boxmosse").children().length - 1;
+            $(".btnmossa").click(function (e) {
+                var mossa = null;
+                if ($(this).html() == '&lt;&lt;') { //<<
+                    mossa = $("#boxmosseOk").children(".divmossa").first();
+                } else if ($(this).html() == '&lt;') { //<
+                    mossa = $($("#boxmosseOk").find(".selected").prevAll(".divmossa")[0])
+                } else if ($(this).html() == '&gt;') { //>
+                    mossa = $($("#boxmosseOk").find(".selected").nextAll(".divmossa")[0])
+                } else if ($(this).html() == '&gt;&gt;') { //>>
+                    mossa = $("#boxmosseOk").children(".divmossa").last();
                 }
-                if (val >= 1) {
-                }
-                $('#boxmosse')
-                    .find('option:nth-child(' + (val + 1) + ')')
-                    //.prop('selected', true)
-                    .trigger('click');
+                mossa.click();
             })
 
-            $("#boxmosse").click(function (e) {
-                var num = $(this).val();
-                DisegnaScacchiera(num);
-            })
-
-            $("#boxmosseOk .spanmossa").click(function (e) {
-                var num = $(this).attr("value");
-                DisegnaScacchiera(num);
-                $(".spanmossa").removeClass("selected");
-                $(this).addClass("selected");
-            })
+            $(window).resize(function () {
+                PosizioneNumeroRigheColonne();
+            });
 
         });
 
         function handleDrop(event, ui) {
 
+        }
+
+        function MosseClickEvent() {
+            $("#boxmosseOk .divmossa").click(function (e) {
+                var num = $(this).attr("value");
+                DisegnaScacchiera(num);
+                $(".divmossa").removeClass("selected");
+                $(this).addClass("selected");
+            })
         }
 
         function MosseDisponibili(riga, colonna) {
@@ -249,6 +250,8 @@
                 success: function (data) {
                     DisegnaPezziInScacchiera(data.scacchiera, data.mossa);
                     DisegnaMosse();
+                    PosizioneNumeroRigheColonne();
+                    $("#boxmosseOk").children(".divmossa").last().addClass("selected");
                     $(".turno").removeClass("turnoattivo");
                     $(".turno0").addClass("turnoattivo");
                 }
@@ -443,7 +446,6 @@
         }
 
         function DisegnaMosse(data) {
-            $("#boxmosse").html("");
             $("#boxmosseOk").html("");
             if (data == null) {
                 $.ajax({
@@ -457,30 +459,20 @@
                         data = mosse;
                     }
                 });
-
             }
 
-            var max = 0;
-            $("#boxmosse").append("<option value='0'>--- Start ---</option>");
-            var cont = 0;
-            data.forEach(function (item) {
-                cont++;
-                $("#boxmosse").append("<option value='" + item.num + "'>" + cont + "." + item.sMossa + "</option>");
-                max = item.num;
-            });
-            $("#boxmosse option[value='" + max + "']").attr("selected", "true");
-
-            $("#boxmosseOk").append("<a class='spanmossa' href='#' value='0'><span>--- Start ---</span></a>");
+            $("#boxmosseOk").append("<div value='0' class='divboxmossa divmossa'>--- Start ---</div>");
             var cont = 0;
             data.forEach(function (item) {
                 cont++;
                 if (cont % 2 != 0) {
-                    $("#boxmosseOk").append("<span style='margin-right: 5px'>" + cont + ".</span>");
+                    $("#boxmosseOk").append("<div class='divboxmossa'>" + ((cont + 1) / 2) + ".</div>");
                 }
-                $("#boxmosseOk").append("<a class='spanmossa' href='#' value='" + item.num + "'><span>" + item.sMossaOk + "</span></a>");
+                $("#boxmosseOk").append("<div class='divboxmossa divmossa' value='" + item.num + "'>" + item.sMossaOk + "</div></a>");
                 max = item.num;
             });
 
+            MosseClickEvent();
         }
 
         function DisegnaMosseDisponibili(data) {
@@ -504,6 +496,27 @@
                     $(".pos" + riga + "-" + col).find(".img").hide();
                 }
             }
+        }
+
+        function PosizioneNumeroRigheColonne() {
+            $(".numriga").each(function (item) {
+                $(this).css("top", $(this).parent().position().top - 3);
+                $(this).css("left", $(this).parent().position().left);
+                if ($(this).parent().css("background-color") == "rgb(0, 0, 0)") {
+                    $(this).css("color", "white");
+                } else {
+                    $(this).css("color", "black");
+                }
+            });
+            $(".numcolonna").each(function (item) {
+                $(this).css("top", $(this).parent().position().top + 44);
+                $(this).css("left", $(this).parent().position().left + 52);
+                if ($(this).parent().css("background-color") == "rgb(0, 0, 0)") {
+                    $(this).css("color", "white");
+                } else {
+                    $(this).css("color", "black");
+                }
+            });
         }
 
 

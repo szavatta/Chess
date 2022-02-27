@@ -112,12 +112,20 @@ body {
     border-color: red !important;
 }
 
-.spanmossa {
+.divboxmossa {
     padding-right: 5px;
+    display: inline-block;
+    
 }
 
-.spanmossa.selected {
+.divmossa.selected {
     color: red;
+    font-weight: bold;
+}
+
+.divmossa:hover {
+    color: red;
+    cursor: pointer;
 }
 
 a:link {
@@ -133,4 +141,13 @@ a:hover {
 
 a:link {
     text-decoration: none;
+}
+
+.numriga {
+    position: absolute;
+    font-size: small;
+}
+.numcolonna {
+    position: absolute;
+    font-size: small;
 }

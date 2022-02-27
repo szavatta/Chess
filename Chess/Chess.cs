@@ -135,6 +135,13 @@ namespace Chess
         {
             List<string> mosse = new List<string>();
             string temp = partita;
+
+            while (partita.IndexOf("[") >= 0)
+            {
+                temp = temp.Remove(temp.IndexOf("["), temp.IndexOf("]") - temp.IndexOf("[") + 1);
+                partita = temp;
+            }
+
             while (partita.IndexOf("{") >= 0)
             {
                 temp = temp.Remove(temp.IndexOf("{"), temp.IndexOf("}") - temp.IndexOf("{") + 1);
@@ -142,14 +149,17 @@ namespace Chess
             }
             partita = partita.Replace("  ", " ").Replace("  ", " ");
 
-            string part = partita.Replace("\r\n", " ").Replace(".", ". ").Trim();
+            string part = partita.Replace("\r\n", " ").Replace("...", "###").Replace(".", ". ").Replace("###", "...").Trim();
 
             string mossa = "";
             foreach(string item in part.Split(' '))
             {
                 if (item.Trim() != "")
                 {
-                    if (item.Last() == '.')
+                    if (item.EndsWith("..."))
+                        continue;
+
+                    if (item.EndsWith("."))
                     {
                         if (!string.IsNullOrEmpty(mossa))
                             mosse.Add(mossa.Trim());
@@ -363,6 +373,16 @@ namespace Chess
                     bool scacco = false;
 
                     string sm1 = sm;
+
+                    if (sm1.EndsWith("!!") || sm1.EndsWith("??") || sm1.EndsWith("!?") || sm1.EndsWith("?!"))
+                    {
+                        sm1 = sm1.Remove(sm1.Length - 2, 2);
+                    }
+                    else if (sm1.EndsWith("!") || sm1.EndsWith("?"))
+                    {
+                        sm1 = sm1.Remove(sm1.Length - 1, 1);
+                    }
+
                     if (sm1.Last() == '+') //Scacco
                     {
                         sm1 = sm1.Remove(sm1.Length - 1, 1);
@@ -572,6 +592,7 @@ namespace Chess
             Pezzo mangiato = MangiaPezzo(posMangiato != null ? posMangiato : pos);
 
             Mossa mossa = new Mossa(this, Posizione, pos, mangiato, sMossa: sMossa);
+            mossa.isScacco = sMossa != null && sMossa.EndsWith("+");
             new Chess().GetMosse.Add(mossa);
 
             Posizione = pos;
