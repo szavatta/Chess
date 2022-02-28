@@ -88,6 +88,28 @@ namespace Chess.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to [Event &quot;Olympiad URS&quot;]
+        ///[Site &quot;Moscow (Russia)&quot;]
+        ///[Date &quot;1979.??.??&quot;]
+        ///[Round &quot;5&quot;]
+        ///[White &quot;Akopian Vladimir (ARM)&quot;]
+        ///[Black &quot;Golovey Tamara O (BLR)&quot;]
+        ///[Result &quot;1/2-1/2&quot;]
+        ///[ECO &quot;E66&quot;]
+        ///[PlyCount &quot;53&quot;]
+        ///
+        ///1. d4 g6 2. c4 Bg7 3. Nf3 Nf6 4. g3 O-O 5. Bg2 d6 6. O-O Nc6 7. Nc3 a6 8. d5
+        ///Na5 9. Nd2 c5 10. Qc2 Rb8 11. b3 b5 12. Bb2 e5 13. e4 Bh6 14. f4 Ng4 15. Rae1
+        ///exf4 16. gxf4 bxc4 17. bxc4 Bg7 18. h3 Bd4+ 19. Kh1 Ne3 20. Rxe3 Bxe3 21. Ncb1
+        ///Qh4 22. f5 Bf4 23. Nf3 Qg3 24. Bc3 Nxc4 25. Be1 Qxg2+ 26. Qxg2 Ne3 27.  [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string campioni {
+            get {
+                return ResourceManager.GetString("campioni", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Event &quot;Wch U16&quot;]
         ///[Site &quot;Wattignies&quot;]
         ///[Date &quot;1976.08.27&quot;]

@@ -84,7 +84,7 @@ namespace Chess
             return scacchiera;
         }
 
-        public string GetScacchieraString()
+        public string GetScacchieraString(List<Pezzo> scacchiera = null)
         {
             string ret = "╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗\r\n";
             for (int riga = 8; riga >= 1; riga--)
@@ -92,7 +92,7 @@ namespace Chess
                 ret += "║";
                 for (int col = 1; col <= 8; col++)
                 {
-                    Pezzo pezzo = Chess.GetScacchiera(riga, col);
+                    Pezzo pezzo = scacchiera == null ? Chess.GetScacchiera(riga, col) : scacchiera.Where(q => q.Posizione.Equals(new Pos(riga, col))).FirstOrDefault();
                     string let = "";
                     if (pezzo == null)
                         let = " ";
@@ -462,35 +462,9 @@ namespace Chess
                     if (pezzo == null)
                         throw new Exception("Mossa non valida");
 
-                    Mossa mossa = pezzo.Mossa(pos, sMossa: sm);
+                    Mossa mossa = pezzo.Mossa(pos, sMossa: sm, promozione: promozione);
                     if (mossa == null)
                         throw new Exception("Mossa non valida");
-
-                    if (promozione != null)
-                    {
-                        Pezzo old = new Chess().GetPezzo(mossa.a);
-                        switch (promozione.Value)
-                        {
-                            case Tipo.Pedone:
-                                new Pedone(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
-                                break;
-                            case Tipo.Torre:
-                                new Torre(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
-                                break;
-                            case Tipo.Cavallo:
-                                new Cavallo(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
-                                break;
-                            case Tipo.Alfiere:
-                                new Alfiere(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
-                                break;
-                            case Tipo.Regina:
-                                new Regina(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
-                                break;
-                            default:
-                                break;
-                        }
-                        old.Posizione = null;
-                    }
 
                     if (scacco)
                     {
@@ -573,7 +547,7 @@ namespace Chess
 
         abstract public List<Pos> MosseDisponibili(bool testScacco = true);
 
-        public virtual Mossa Mossa(Pos pos, bool testScacco = true, string sMossa = null)
+        public virtual Mossa Mossa(Pos pos, bool testScacco = true, string sMossa = null, Tipo? promozione = null)
         {
             Pos posMangiato = null;
             if (!IsMossaValida(pos, testScacco))
@@ -592,17 +566,58 @@ namespace Chess
             Pezzo mangiato = MangiaPezzo(posMangiato != null ? posMangiato : pos);
 
             Mossa mossa = new Mossa(this, Posizione, pos, mangiato, sMossa: sMossa);
-            mossa.isScacco = sMossa != null && sMossa.EndsWith("+");
+            mossa.isScacco = sMossa != null && sMossa.Contains("+");
             new Chess().GetMosse.Add(mossa);
 
             Posizione = pos;
             mossa.scacchiera = Chess.GetScacchieraTotale().Select(item => (Pezzo)item.Clone()).ToList();
+
+            if (promozione != null)
+            {
+                Pezzo old = new Chess().GetPezzo(Posizione);
+                switch (promozione.Value)
+                {
+                    case Tipo.Pedone:
+                        new Pedone(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
+                        break;
+                    case Tipo.Torre:
+                        new Torre(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
+                        break;
+                    case Tipo.Cavallo:
+                        new Cavallo(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
+                        break;
+                    case Tipo.Alfiere:
+                        new Alfiere(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
+                        break;
+                    case Tipo.Regina:
+                        new Regina(old.Posizione.Riga, old.Posizione.Colonna, old.Colore, true);
+                        break;
+                    default:
+                        break;
+                }
+                old.Posizione = null;
+            }
 
             Re re = (Re)Chess.GetScacchiera(tipo: Tipo.Re, nocolore: Colore).FirstOrDefault();
             if (re != null && re.IsScaccoMatto())
             {
                 mossa.sMossa = mossa.sMossa.Replace("+", "#");
                 mossa.isScaccoMatto = true;
+            }
+
+            //Verifica lo scacco
+            if (re != null && sMossa != null)
+            {
+                if (((Re)re).IsSottoScacco(false, true))
+                {
+                    if (!sMossa.Contains("+") && !sMossa.Contains("#"))
+                        throw new Exception("Non coincide lo scacco");
+                }
+                else
+                {
+                    if (sMossa.Contains("+") || sMossa.Contains("#"))
+                        throw new Exception("Non coincide lo scacco");
+                }
             }
 
             NumMosse++;
@@ -700,17 +715,20 @@ namespace Chess
                 else
                     this.sMossa = $"{pezzo?.Lettera}{(char)(da?.Colonna + 96)}{da?.Riga}{(pezzoMangiato == null ? "-" : "x")}{(char)(a?.Colonna + 96)}{a?.Riga}";
             }
-            Pezzo re = Chess.GetScacchiera(tipo: Tipo.Re, colore: pezzo.Colore).FirstOrDefault();
+            
+            Pezzo re = Chess.GetScacchiera(tipo: Tipo.Re, nocolore: pezzo.Colore).FirstOrDefault();
             if (re != null)
             {
                 Chess.MuoviPezzoClone(da, a);
                 if (((Re)re).IsSottoScacco(false))
                 {
-                    this.isScacco = true;
-                    this.sMossa += "+";
+                    if (sMossa == null)
+                    {
+                        this.isScacco = true;
+                        this.sMossa += "+";
+                    }
                 }
             }
-                
         }
         public int num { get; set; }
         public Pezzo pezzo { get; set; }
@@ -967,7 +985,7 @@ namespace Chess
                 Chess.AggiungePezzo(this);
         }
 
-        public override Mossa Mossa(Pos pos, bool testScacco = true, string sMossa = null)
+        public override Mossa Mossa(Pos pos, bool testScacco = true, string sMossa = null, Tipo? promozione = null)
         {
             if (!IsMossaValida(pos))
                 return null;

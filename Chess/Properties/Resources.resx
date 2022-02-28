@@ -121,6 +121,9 @@
   <data name="Anand" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Anand.pgn;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="campioni" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\campioni.pgn;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="Kasparov" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Kasparov.pgn;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>

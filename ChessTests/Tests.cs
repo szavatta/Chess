@@ -1706,10 +1706,6 @@ Bg5+ {[% clk 0:00:01]}
             var c = chess.GetScacchieraString();
         }
 
-
-
-
-
     }
 
     [TestClass()]
@@ -1803,6 +1799,36 @@ Bg5+ {[% clk 0:00:01]}
                 Trace.WriteLine($"partita {npar} di {lpart.Count}, mosse {lmosse.Count} ({(int)(DateTime.Now - dataini).TotalMilliseconds} millisecondi)");
             }
         }
+
+        [TestMethod()]
+
+        public void Campioni()
+        {
+            string partite = Properties.Resources.campioni;
+
+            Chess chess = new Chess();
+
+            //partite in errore fino a 2400: 
+            List<Partita> lpart = chess.GetPartite(partite);
+            int npar = 0;
+            foreach (Partita partita in lpart)
+            {
+                DateTime dataini = DateTime.Now;
+                npar++;
+                chess.NuovaPartita();
+
+                List<string> lmosse = chess.GetStringMosse(partita.Mosse);
+                int nmos = 0;
+                foreach (string mossa in lmosse)
+                {
+                    nmos++;
+                    Assert.IsTrue(chess.MuoviPezzo(mossa), $"Event {partita.Event}, Round {partita.Round}, Mossa {nmos}");
+                    //chess.GetScacchieraString();
+                }
+                Trace.WriteLine($"partita {npar} di {lpart.Count}, mosse {lmosse.Count} ({(int)(DateTime.Now - dataini).TotalMilliseconds} millisecondi)");
+            }
+        }
+
 
     }
 
