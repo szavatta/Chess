@@ -1781,6 +1781,7 @@ Bg5+ {[% clk 0:00:01]}
             Chess chess = new Chess();
 
             List<Partita> lpart = chess.GetPartite(partite).OrderBy(q => q.Mosse.Length).ToList();
+            lpart = lpart.Skip(15).ToList();
             int npar = 0;
             foreach (Partita partita in lpart)
             {
@@ -1790,6 +1791,7 @@ Bg5+ {[% clk 0:00:01]}
 
                 List<string> lmosse = chess.GetStringMosse(partita.Mosse);
                 int nmos = 0;
+             
                 foreach (string mossa in lmosse)
                 {
                     nmos++;
@@ -1810,6 +1812,7 @@ Bg5+ {[% clk 0:00:01]}
 
             //partite in errore fino a 2400: 
             List<Partita> lpart = chess.GetPartite(partite);
+            //lpart = lpart.Skip(152).ToList();
             int npar = 0;
             foreach (Partita partita in lpart)
             {

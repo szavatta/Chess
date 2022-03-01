@@ -564,6 +564,7 @@ namespace Chess
                 ((Pedone)this).EnPassant = true;
 
             Pezzo mangiato = MangiaPezzo(posMangiato != null ? posMangiato : pos);
+            Re re = (Re)Chess.GetScacchiera(tipo: Tipo.Re, nocolore: Colore).FirstOrDefault();
 
             Mossa mossa = new Mossa(this, Posizione, pos, mangiato, sMossa: sMossa);
             mossa.SetStringMossa(promozione);
@@ -597,13 +598,26 @@ namespace Chess
                         break;
                 }
                 old.Posizione = null;
+
+                if (re != null)
+                {
+                    if (re.IsSottoScacco(false, true))
+                    {
+                        mossa.isScacco = true;
+                        mossa.sMossa += "+";
+                    }
+                }
             }
 
-            Re re = (Re)Chess.GetScacchiera(tipo: Tipo.Re, nocolore: Colore).FirstOrDefault();
             if (re != null && re.IsScaccoMatto())
             {
                 mossa.sMossa = mossa.sMossa.Replace("+", "#");
                 mossa.isScaccoMatto = true;
+            }
+
+            if (mossa.sMossaOk != null && mossa.sMossa != mossa.sMossaOk.Replace("?", "").Replace("!", ""))
+            {
+                throw new Exception("Non corrisponde sMossa");
             }
 
             //Verifica lo scacco
@@ -773,10 +787,6 @@ namespace Chess
                 this.sMossa += "=" + Chess.GetScacchieraTotale().Where(q => q.Tipo == promozione).FirstOrDefault().Lettera;
             }
 
-            if (this.sMossa != sMossaOk)
-            {
-                throw new Exception("Non corrisponde sMossa");
-            }
         }
 
     }
