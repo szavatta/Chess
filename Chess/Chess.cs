@@ -566,6 +566,7 @@ namespace Chess
             Pezzo mangiato = MangiaPezzo(posMangiato != null ? posMangiato : pos);
 
             Mossa mossa = new Mossa(this, Posizione, pos, mangiato, sMossa: sMossa);
+            mossa.SetStringMossa(promozione);
             mossa.isScacco = sMossa != null && sMossa.Contains("+");
             new Chess().GetMosse.Add(mossa);
 
@@ -708,27 +709,6 @@ namespace Chess
             this.pezzoMangiato = pezzoMangiato;
             this.isArrocco = isArrocco;
             this.sMossaOk = sMossa;
-            if (pezzo != null)
-            {
-                if (isArrocco)
-                    this.sMossa = a.Colonna < 4 ? "0-0" : "0-0-0";
-                else
-                    this.sMossa = $"{pezzo?.Lettera}{(char)(da?.Colonna + 96)}{da?.Riga}{(pezzoMangiato == null ? "-" : "x")}{(char)(a?.Colonna + 96)}{a?.Riga}";
-            }
-            
-            Pezzo re = Chess.GetScacchiera(tipo: Tipo.Re, nocolore: pezzo.Colore).FirstOrDefault();
-            if (re != null)
-            {
-                Chess.MuoviPezzoClone(da, a);
-                if (((Re)re).IsSottoScacco(false))
-                {
-                    if (sMossa == null)
-                    {
-                        this.isScacco = true;
-                        this.sMossa += "+";
-                    }
-                }
-            }
         }
         public int num { get; set; }
         public Pezzo pezzo { get; set; }
@@ -741,6 +721,64 @@ namespace Chess
         public string sMossa { get; set; }
         public string sMossaOk { get; set; }
         public List<Pezzo> scacchiera { get; set; }
+
+        public void SetStringMossa(Tipo? promozione = null)
+        {
+            if (pezzo != null)
+            {
+                if (isArrocco)
+                    this.sMossa = a.Colonna > 4 ? "O-O" : "O-O-O";
+                else
+                {
+                    this.sMossa = pezzo?.Lettera;
+                    if (pezzo is Pedone && pezzoMangiato != null)
+                    {
+                        this.sMossa += (char)(da.Colonna + 96);
+                    }
+                    else
+                    {
+                        foreach (Pezzo pz in Chess.GetScacchiera(tipo: pezzo.Tipo, colore: pezzo.Colore).Where(q => !q.Posizione.Equals(da)))
+                        {
+                            if (pz.IsMossaValida(a, true))
+                            {
+                                if (pz.Posizione.Colonna != da.Colonna)
+                                    this.sMossa += (char)(da.Colonna + 96);
+                                else if (pz.Posizione.Riga != da.Riga)
+                                    this.sMossa += da.Riga;
+                            }
+                        }
+                    }
+                    this.sMossa += (pezzoMangiato == null ? "" : "x");
+                    this.sMossa += $"{(char)(a?.Colonna + 96)}{a?.Riga}";
+                    //this.sMossa = $"{pezzo?.Lettera}{(char)(da?.Colonna + 96)}{da?.Riga}{(pezzoMangiato == null ? "-" : "x")}{(char)(a?.Colonna + 96)}{a?.Riga}";
+                }
+            }
+
+            if (pezzo.Tipo != Tipo.Re)
+            {
+                Pezzo re = Chess.GetScacchiera(tipo: Tipo.Re, nocolore: pezzo.Colore).FirstOrDefault();
+                if (re != null)
+                {
+                    Chess.MuoviPezzoClone(da, a);
+                    if (((Re)re).IsSottoScacco(false))
+                    {
+                        this.isScacco = true;
+                        this.sMossa += "+";
+                    }
+                }
+            }
+
+            if (promozione != null)
+            {
+                this.sMossa += "=" + Chess.GetScacchieraTotale().Where(q => q.Tipo == promozione).FirstOrDefault().Lettera;
+            }
+
+            if (this.sMossa != sMossaOk)
+            {
+                throw new Exception("Non corrisponde sMossa");
+            }
+        }
+
     }
 
     public class Pos
@@ -785,7 +823,7 @@ namespace Chess
             Posizione = new Pos(posRiga,posColonna);
             Colore = colore;
             Tipo = Tipo.Torre;
-            Lettera = "T";
+            Lettera = "R";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -844,7 +882,7 @@ namespace Chess
             Posizione = new Pos(posRiga, posColonna);
             Colore = colore;
             Tipo = Tipo.Cavallo;
-            Lettera = "C";
+            Lettera = "N";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -899,7 +937,7 @@ namespace Chess
             Posizione = new Pos(posRiga, posColonna);
             Colore = colore;
             Tipo = Tipo.Alfiere;
-            Lettera = "A";
+            Lettera = "B";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -959,7 +997,7 @@ namespace Chess
             Posizione = new Pos(posRiga, posColonna);
             Colore = colore;
             Tipo = Tipo.Regina;
-            Lettera = "D";
+            Lettera = "Q";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -980,7 +1018,7 @@ namespace Chess
             Posizione = new Pos(posRiga, posColonna);
             Colore = colore;
             Tipo = Tipo.Re;
-            Lettera = "R";
+            Lettera = "K";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -1005,6 +1043,8 @@ namespace Chess
                 }
                 mossa.isArrocco = true;
             }
+
+            mossa.SetStringMossa();
 
             new Chess().GetMosse.Add(mossa);
 
