@@ -84,7 +84,7 @@ namespace Chess.Controllers
             List<string> lmosse = chess.GetStringMosse(partita.Mosse);
             foreach (string mossa in lmosse)
             {
-                if (!chess.MuoviPezzo(mossa))
+                if (!chess.MuoviPezzo(mossa).Esito)
                     break;
             }
 

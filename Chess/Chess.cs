@@ -341,14 +341,20 @@ namespace Chess
 
         }
 
-        public bool MuoviPezzo(string sMossa)
+        public class EsitoMossa
         {
-            bool ret = true;
+            public bool Esito { get; set; }
+            public string Messaggio { get; set; }
+        }
+
+        public EsitoMossa MuoviPezzo(string sMossa)
+        {
+            EsitoMossa ret = new EsitoMossa { Esito = true };
 
             try
             {
                 if (string.IsNullOrEmpty(sMossa))
-                    return true;
+                    return ret;
 
                 var sMosse = sMossa.Trim().Split(' ').ToList();
                 if (sMosse.Count == 3 || sMosse[0].Last() == '.')
@@ -360,7 +366,7 @@ namespace Chess
                     if (sm == "1-0" || sm == "0-1" || sm == "1/2-1/2" || sm == "*")
                     {
                         //Fine partita
-                        return true;
+                        return ret;
                     }
 
                     int riga = 0;
@@ -471,16 +477,20 @@ namespace Chess
                         Chess.ScacchieraClone = new List<Pezzo>();
                         Re re = (Re)Chess.GetScacchiera(tipo: Tipo.Re, nocolore: colore).FirstOrDefault();
                         if (re == null || re != null && !re.IsSottoScacco(false))
-                            ret = false;
-                        //new Chess().GetScacchieraString();
+                        {
+                            ret.Esito = false;
+                            ret.Messaggio = "Il Re non è sotto scacco";
+                            //new Chess().GetScacchieraString();
+                        }
                     }
 
                 }
 
             }
-            catch
+            catch (Exception ex)
             {
-                ret = false;
+                ret.Esito = false;
+                ret.Messaggio = ex.Message;
             }
 
             //Pezzo pezzo = Scacchiera.Where(q => q.Posizione != null && q.Posizione.Equals(da)).FirstOrDefault();
@@ -604,7 +614,7 @@ namespace Chess
                     if (re.IsSottoScacco(false, true))
                     {
                         mossa.isScacco = true;
-                        mossa.sMossa += "+";
+                        mossa.sMossa = mossa.sMossa.Replace("+", "") + "+";
                     }
                 }
             }
@@ -617,7 +627,7 @@ namespace Chess
 
             if (mossa.sMossaOk != null && mossa.sMossa != mossa.sMossaOk.Replace("?", "").Replace("!", ""))
             {
-                throw new Exception("Non corrisponde sMossa");
+                throw new Exception($"Non corrisponde sMossa: {mossa.sMossa} {mossa.sMossaOk}");
             }
 
             //Verifica lo scacco
