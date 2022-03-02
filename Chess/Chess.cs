@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Chess
 {
@@ -583,6 +580,11 @@ namespace Chess
 
             Posizione = pos;
             mossa.scacchiera = Chess.GetScacchieraTotale().Select(item => (Pezzo)item.Clone()).ToList();
+
+            if(sMossa == null && promozione == null && Tipo == Tipo.Pedone && (Colore == Colore.Bianco && Posizione.Riga == 8 || Colore == Colore.Nero && Posizione.Riga == 1))
+            {
+                promozione = Tipo.Regina;
+            }
 
             if (promozione != null)
             {

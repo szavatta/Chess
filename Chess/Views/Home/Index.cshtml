@@ -92,7 +92,6 @@
             if ($(".pallinorosso").length == 0) {
                 SottoScacco(null, null, 1);
             }
-            $("#boxmosseOk").children(".divmossa").last().addClass("selected");
 
             $(".img").draggable({
                 revert: "invalid",
@@ -468,9 +467,10 @@
                 if (cont % 2 != 0) {
                     $("#boxmosseOk").append("<div class='divboxmossa'>" + ((cont + 1) / 2) + ".</div>");
                 }
-                $("#boxmosseOk").append("<div class='divboxmossa divmossa' value='" + item.num + "'>" + item.sMossaOk + "</div></a>");
+                $("#boxmosseOk").append("<div class='divboxmossa divmossa' value='" + item.num + "'>" + item.sMossa + "</div></a>");
                 max = item.num;
             });
+            $("#boxmosseOk").children(".divmossa").last().addClass("selected");
 
             MosseClickEvent();
         }
