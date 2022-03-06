@@ -344,7 +344,7 @@ namespace Chess
             public string Messaggio { get; set; }
         }
 
-        public EsitoMossa MuoviPezzo(string sMossa)
+        public EsitoMossa MuoviPezzo(string sMossa, Colore? colore = null)
         {
             EsitoMossa ret = new EsitoMossa { Esito = true };
 
@@ -357,7 +357,9 @@ namespace Chess
                 if (sMosse.Count == 3 || sMosse[0].Last() == '.')
                     sMosse = sMosse.Skip(1).ToList();
 
-                Colore? colore = null;
+                if (colore == Colore.Bianco)
+                    colore = null;
+
                 foreach (string sm in sMosse)
                 {
                     if (sm == "1-0" || sm == "0-1" || sm == "1/2-1/2" || sm == "*")
