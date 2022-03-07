@@ -1754,6 +1754,7 @@ Bg5+ {[% clk 0:00:01]}
 
             //partite in errore fino a 2400: 
             List<Partita> lpart = chess.GetPartite(partite);
+            lpart = lpart.Skip(409).ToList();
             int npar = 0;
             foreach (Partita partita in lpart)
             {

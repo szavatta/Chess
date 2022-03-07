@@ -509,7 +509,7 @@ namespace Chess
             var old = sc.Where(q => q.Posizione.Equals(a)).FirstOrDefault();
             if (old == null && pz.Tipo == Tipo.Pedone && da.Colonna != a.Colonna)
                 old = sc.Where(q => q.Posizione.Colonna == a.Colonna && q.Posizione.Riga == da.Riga).FirstOrDefault();
-            if (old != null)
+            if (old != null /*&& old.Tipo == Tipo.Pedone*/)
                 sc.Remove(old);
 
             pz.Posizione = a;
