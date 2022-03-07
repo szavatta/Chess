@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,25 +24,9 @@ namespace Chess.Controllers
 
         public IActionResult Index()
         {
-            try
-            {
-                string url = "https://localhost:44376/chess/scacchiera";
-                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
-                webRequest.ContentType = "application/json";
-                webRequest.Method = "GET";
-                HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-                if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    var streamReader = new StreamReader(response.GetResponseStream(), System.Text.Encoding.Default);
-                    string output = streamReader.ReadToEnd();
-                    chess.SetScacchiera(output);
-                }
-                
-            }
-            catch(Exception ex)
-            {
-
-            }
+            string output = MetodiWebservice.GetScacchiera();
+            if (!string.IsNullOrEmpty(output))
+                chess.SetScacchiera(output);
 
             return View();
         }
@@ -127,41 +110,11 @@ namespace Chess.Controllers
 
         public JsonResult MuoviPezzo(int initRiga, int initColonna, int finRiga, int finColonna)
         {
-            try
-            {
-                Colore? colore = Chess.GetScacchiera(posizione: new Pos(initRiga, initColonna)).FirstOrDefault()?.Colore;
-                if (colore == null)
-                    throw new Exception("Non trovato pezzo in posizione iniziale");
-                string url = "https://localhost:44376/chess/mossa";
-                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
-                webRequest.ContentType = "application/json";
-                webRequest.Method = "POST";
-                string body = $"{{" +
-                    $"\"mossaDa\": {{ \"Riga\": {initRiga}, \"Colonna\": {initColonna} }}," +
-                    $"\"mossaA\": {{ \"Riga\": {finRiga}, \"Colonna\": {finColonna} }}," +
-                    $"\"colore\": {(int)colore}" +
-                    $"}}";
-                var bodyb = Encoding.UTF8.GetBytes(body);
-                webRequest.ContentLength = bodyb.Length;
-                Stream requestStream = webRequest.GetRequestStream();
-                requestStream.Write(bodyb, 0, bodyb.Length);
-                requestStream.Close();
+            string output = MetodiWebservice.Mossa(new Pos(initRiga, initColonna), new Pos(finRiga, finColonna));
+            if(!string.IsNullOrEmpty(output))
+                chess.SetScacchiera(output);
 
-                HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
-                if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    var streamReader = new StreamReader(response.GetResponseStream(), System.Text.Encoding.Default);
-                    string output = streamReader.ReadToEnd();
-                    chess.SetScacchiera(output);
-                }
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-
-            return Json(new { scacchiera = Chess.GetScacchiera(), mosse = chess.GetMosse});
+            return Json(new { scacchiera = Chess.GetScacchiera(), mosse = chess.GetMosse, mossa = chess.GetMosse.LastOrDefault()?.sMossaOk });
         }
 
         public JsonResult MuoviPezzoOld(int initRiga, int initColonna, int finRiga, int finColonna)

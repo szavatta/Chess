@@ -315,6 +315,7 @@ namespace Chess
         {
             var ret = JsonConvert.DeserializeObject<ReturnWebScacchiera>(json);
             NuovaScacchiera();
+
             foreach (var pezzo in ret.scacchiera)
             {
                 switch (pezzo.Tipo)
@@ -342,8 +343,37 @@ namespace Chess
                 }
             }
 
+            foreach (var mossa in ret.mosse)
+            {
+                Pezzo pezzo = null;
+                switch (mossa.pezzo.Tipo)
+                {
+                    case Tipo.Pedone:
+                        pezzo = new Pedone(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
+                        break;
+                    case Tipo.Torre:
+                        pezzo = new Torre(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
+                        break;
+                    case Tipo.Cavallo:
+                        pezzo = new Cavallo(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
+                        break;
+                    case Tipo.Alfiere:
+                        pezzo = new Alfiere(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
+                        break;
+                    case Tipo.Re:
+                        pezzo = new Re(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
+                        break;
+                    case Tipo.Regina:
+                        pezzo = new Regina(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
+                        break;
+                    default:
+                        break;
+                }
 
-            Mosse = ret.mosse;
+                Mossa m = new Mossa(pezzo, mossa.da, mossa.a, mossa.pezzoMangiato, mossa.isArrocco, mossa.sMossa);
+                Mosse.Add(m);
+
+            }
         }
 
         public Mossa MuoviPezzo(Pos da, Pos a)
