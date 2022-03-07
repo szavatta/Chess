@@ -15,9 +15,9 @@
         </div>
 
         <div style="display: inline-block; ">
-            <div style="margin-bottom:10px">
+            <div style="margin-bottom:2px">
                 <div style="display: inline-block">
-                    <input type="radio" class="btn-check" name="options-outlined" id="success-outlined" autocomplete="off" checked>
+                    <input type="radio" value="0" name="chturno" checked>
                     <label>Bianco</label>
                 </div>
                 <div style="display: inline-block">
@@ -29,9 +29,13 @@
                     <div class="turno turno1" colore="1" style="background-color: black; border-radius: 25px; border: 1px solid; width:25px;height:25px; margin-left: 10px"></div>
                 </div>
                 <div style="display: inline-block">
-                    <input type="radio" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off">
+                    <input type="radio" value="1" name="chturno">
                     <label>Nero</label>
                 </div>
+            </div>
+
+            <div style="margin-bottom:10px; height: 15px">
+                <div id="attesaturno" style="display:none; color:red">In attesa della mossa dell'avversario</div>
             </div>
 
             <div style="border: 1px solid;">
@@ -40,19 +44,19 @@
                     <div style="display:flex">
                         @for (int col = 1; col <= 8; col++)
                         {
-                        <div class="@($"pos{riga}-{col}") divq" posRiga="@riga" posColonna="@col" style="background-color: @((riga+col) % 2 == 0 ? "black" : "white")">
-                            @if (riga == 1)
-                            {
-                                <div class="numcolonna">@((char)(col+96))</div>
-                            }
-                            @if (col == 1)
-                            {
-                                <div class="numriga">@riga</div>
-                            }
+                            <div class="@($"pos{riga}-{col}") divq" posRiga="@riga" posColonna="@col" style="background-color: @((riga+col) % 2 == 0 ? "black" : "white")">
+                                @if (riga == 1)
+                                {
+                                    <div class="numcolonna">@((char)(col+96))</div>
+                                }
+                                @if (col == 1)
+                                {
+                                    <div class="numriga">@riga</div>
+                                }
 
-                            <img class="img" style="display:none" />
+                                <img class="img" style="display:none" />
 
-                        </div>
+                            </div>
                         }
                     </div>
                 }
@@ -92,14 +96,33 @@
 
     <script type="text/javascript">
 
+        var attesaturno = null;
+
         $(document).ready(function () {
             PosizioneNumeroRigheColonne();
             DisegnaMosse();
             DisegnaScacchiera();
+            var turno = GetTurno();
+            if (turno != $('input[name="chturno"]:checked').val()) {
+                $("#attesaturno").show();
+                attesaturno = setInterval(VerificaTurno, 1000);
+            }
             SottoScacco(null, null, 0);
             if ($(".pallinorosso").length == 0) {
                 SottoScacco(null, null, 1);
             }
+
+            $('input[name="chturno"]').change(function () {
+                var turno = GetTurno();
+                if (turno != $('input[name="chturno"]:checked').val()) {
+                    $("#attesaturno").show();
+                    attesaturno = setInterval(VerificaTurno, 1000);
+                } else {
+                    $("#attesaturno").hide();
+                    clearInterval(attesaturno);
+                    attesaturno = null;
+                }
+            });
 
             $(".img").draggable({
                 revert: "invalid",
@@ -386,6 +409,9 @@
                     $(".divq").removeClass("selezionato");
                     $(".pos" + data.mossa.da.riga + "-" + data.mossa.da.colonna).addClass("pallinoverde");
                     $(".pos" + data.mossa.a.riga + "-" + data.mossa.a.colonna).addClass("pallinoverde");
+                    $("#attesaturno").show();
+                    attesaturno = setInterval(VerificaTurno, 1000);
+
                     ret = data.op;
                 },
                 error: function (data) {
@@ -415,6 +441,42 @@
             });
 
         }
+
+        function VerificaTurno() {
+            $.ajax({
+                url: '/Home/VerificaTurno',
+                dataType: 'json',
+                async: false,
+                type: 'post',
+                data: {
+                    colore: $('input[name="chturno"]:checked').val()
+                },
+                success: function (data) {
+                    if (data != null) {
+                        DisegnaPezziInScacchiera(data.scacchiera);
+                        $("#attesaturno").hide();
+                        clearInterval(attesaturno);
+                        attesaturno = null;
+                    }
+                }
+            });
+
+        }
+
+        function GetTurno() {
+            var colore = null;
+            $.ajax({
+                url: '/Home/GetTurno',
+                dataType: 'json',
+                async: false,
+                type: 'post',
+                success: function (data) {
+                    colore = data;
+                }
+            });
+            return colore;
+        }
+
 
         function GetPezzo(riga, colonna) {
             var pezzo = null;

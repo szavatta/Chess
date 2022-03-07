@@ -139,6 +139,38 @@ namespace Chess
             return output;
         }
 
+        public static string Turno(Colore colore)
+        {
+            string output = "";
+            try
+            {
+                string url = urlws + "/chess/turno";
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+                webRequest.ContentType = "application/json";
+                webRequest.Method = "POST";
+                string body = $"{{\"colore\":{(int)colore}}}";
+                var bodyb = Encoding.UTF8.GetBytes(body);
+                webRequest.ContentLength = bodyb.Length;
+                Stream requestStream = webRequest.GetRequestStream();
+                requestStream.Write(bodyb, 0, bodyb.Length);
+                requestStream.Close();
+
+                HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var streamReader = new StreamReader(response.GetResponseStream(), System.Text.Encoding.Default);
+                    output = streamReader.ReadToEnd();
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return output;
+        }
+
     }
 
 }

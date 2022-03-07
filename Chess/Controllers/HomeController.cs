@@ -114,7 +114,7 @@ namespace Chess.Controllers
             if(!string.IsNullOrEmpty(output))
                 chess.SetScacchiera(output);
 
-            return Json(new { scacchiera = Chess.GetScacchiera(), mosse = chess.GetMosse, mossa = chess.GetMosse.LastOrDefault()?.sMossaOk });
+            return Json(new { scacchiera = Chess.GetScacchiera(), mosse = chess.GetMosse, mossa = chess.GetMosse.LastOrDefault() });
         }
 
         public JsonResult MuoviPezzoOld(int initRiga, int initColonna, int finRiga, int finColonna)
@@ -134,6 +134,22 @@ namespace Chess.Controllers
 
 
             return Json(new { scacchiera = Chess.GetScacchiera(), mosse = chess.GetMosse, mossa = mossa, op = op });
+        }
+
+        public JsonResult VerificaTurno(Colore colore)
+        {
+            string output = MetodiWebservice.Turno(colore);
+
+            if (!string.IsNullOrEmpty(output))
+                chess.SetScacchiera(output);
+
+            return Json(!string.IsNullOrEmpty(output) ? new { scacchiera = Chess.GetScacchiera(), mosse = chess.GetMosse, mossa = chess.GetMosse.LastOrDefault() } : null);
+        }
+
+        public JsonResult GetTurno()
+        {
+            Colore colore = chess.GetMosse.Count == 0 || chess.GetMosse.Last().pezzo.Colore == Colore.Nero ? Colore.Bianco : Colore.Nero;
+            return Json(colore);
         }
 
         public JsonResult IsSottoScacco(int riga, int colonna, Colore? colore)

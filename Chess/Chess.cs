@@ -310,6 +310,35 @@ namespace Chess
 
         }
 
+        public static Pezzo NewPezzo(Pezzo pezzo)
+        {
+            Pezzo ret = null;
+            switch (pezzo.Tipo)
+            {
+                case Tipo.Pedone:
+                    ret = new Pedone(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    break;
+                case Tipo.Torre:
+                    ret = new Torre(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    break;
+                case Tipo.Cavallo:
+                    ret = new Cavallo(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    break;
+                case Tipo.Alfiere:
+                    ret = new Alfiere(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    break;
+                case Tipo.Re:
+                    ret = new Re(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    break;
+                case Tipo.Regina:
+                    ret = new Regina(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    break;
+                default:
+                    break;
+            }
+
+            return ret;
+        }
 
         public void SetScacchiera(string json)
         {
@@ -318,61 +347,12 @@ namespace Chess
 
             foreach (var pezzo in ret.scacchiera)
             {
-                switch (pezzo.Tipo)
-                {
-                    case Tipo.Pedone:
-                        new Pedone(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
-                        break;
-                    case Tipo.Torre:
-                        new Torre(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
-                        break;
-                    case Tipo.Cavallo:
-                        new Cavallo(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
-                        break;
-                    case Tipo.Alfiere:
-                        new Alfiere(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
-                        break;
-                    case Tipo.Re:
-                        new Re(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
-                        break;
-                    case Tipo.Regina:
-                        new Regina(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
-                        break;
-                    default:
-                        break;
-                }
+                Scacchiera.Add(NewPezzo(pezzo));
             }
 
             foreach (var mossa in ret.mosse)
             {
-                Pezzo pezzo = null;
-                switch (mossa.pezzo.Tipo)
-                {
-                    case Tipo.Pedone:
-                        pezzo = new Pedone(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
-                        break;
-                    case Tipo.Torre:
-                        pezzo = new Torre(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
-                        break;
-                    case Tipo.Cavallo:
-                        pezzo = new Cavallo(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
-                        break;
-                    case Tipo.Alfiere:
-                        pezzo = new Alfiere(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
-                        break;
-                    case Tipo.Re:
-                        pezzo = new Re(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
-                        break;
-                    case Tipo.Regina:
-                        pezzo = new Regina(mossa.pezzo.Posizione.Riga, mossa.pezzo.Posizione.Colonna, mossa.pezzo.Colore, true);
-                        break;
-                    default:
-                        break;
-                }
-
-                Mossa m = new Mossa(pezzo, mossa.da, mossa.a, mossa.pezzoMangiato, mossa.isArrocco, mossa.sMossa);
-                Mosse.Add(m);
-
+                Mosse.Add(new Mossa(NewPezzo(mossa.pezzo), mossa.da, mossa.a, mossa.pezzoMangiato, mossa.isArrocco, mossa.sMossa));
             }
         }
 
