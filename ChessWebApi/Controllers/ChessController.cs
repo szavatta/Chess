@@ -16,6 +16,8 @@ namespace ChessWebApi.Controllers
         public class ApiMossa
         {
             public string mossa { get; set; }
+            public Pos mossaDa { get; set; }
+            public Pos mossaA { get; set; }
             public Colore colore { get; set; }
         }
 
@@ -42,14 +44,14 @@ namespace ChessWebApi.Controllers
         public List<Pezzo> NuovaPartita()
         {
             Chess.Chess chess = new Chess.Chess();
-            chess.NuovaPartita();
+            chess.NuovaPartita();   
 
             return Chess.Chess.GetScacchiera();
         }
 
         [HttpPost]
         [Route("mossa")]
-        public List<Pezzo> Mossa([FromBody] ApiMossa mossa)
+        public ApiScacchiera Mossa([FromBody] ApiMossa mossa)
         {
             Chess.Chess chess = new Chess.Chess();
 
@@ -62,17 +64,25 @@ namespace ChessWebApi.Controllers
                 if (Chess.Chess.GetScacchiera().Count == 0)
                     chess.NuovaPartita();
 
-                var esito = chess.MuoviPezzo(mossa.mossa, mossa.colore);
-                if (esito.Esito == false)
-                    throw new Exception(esito.Messaggio);
-
+                if (string.IsNullOrEmpty(mossa.mossa))
+                {
+                    var esito = chess.MuoviPezzo(mossa.mossaDa, mossa.mossaA);
+                    if (esito == null)
+                        throw new Exception("Mossa non valida");
+                }
+                else
+                {
+                    Chess.Chess.EsitoMossa esito = chess.MuoviPezzo(mossa.mossa, mossa.colore);
+                    if (esito.Esito == false)
+                        throw new Exception(esito.Messaggio);
+                }
             }
             catch(Exception ex)
             {
                 throw new System.Web.Http.HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotAcceptable));
             }
 
-            return Chess.Chess.GetScacchiera();
+            return new ApiScacchiera { scacchiera = Chess.Chess.GetScacchiera(), mosse = chess.GetMosse };
         }
 
         [HttpPost]
@@ -92,12 +102,23 @@ namespace ChessWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("scacchiera")]
-        public String Scacchiera()
+        [Route("scacchierastring")]
+        public String ScacchieraString()
         {
             Chess.Chess chess = new Chess.Chess();
 
             return chess.GetScacchieraString();
+        }
+
+        [HttpGet]
+        [Route("scacchiera")]
+        public ApiScacchiera Scacchiera()
+        {
+            Chess.Chess chess = new Chess.Chess();
+            if (Chess.Chess.GetScacchiera().Count == 0)
+                chess.NuovaPartita();
+
+            return new ApiScacchiera { scacchiera = Chess.Chess.GetScacchiera(), mosse = chess.GetMosse };
         }
 
     }

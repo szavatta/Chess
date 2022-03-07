@@ -297,6 +297,55 @@ namespace Chess
             Mosse = new List<Mossa>();
         }
 
+        public void SetScacchiera(List<Pezzo> scacchiera, List<Mossa> mosse)
+        {
+            Scacchiera = scacchiera;
+            Mosse = mosse;
+        }
+
+        public class ReturnWebScacchiera
+        {
+            public List<PezzoWeb> scacchiera { get; set; }
+            public List<MossaWeb> mosse { get; set; }
+
+        }
+
+
+        public void SetScacchiera(string json)
+        {
+            var ret = JsonConvert.DeserializeObject<ReturnWebScacchiera>(json);
+            NuovaScacchiera();
+            foreach (var pezzo in ret.scacchiera)
+            {
+                switch (pezzo.Tipo)
+                {
+                    case Tipo.Pedone:
+                        new Pedone(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
+                        break;
+                    case Tipo.Torre:
+                        new Torre(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
+                        break;
+                    case Tipo.Cavallo:
+                        new Cavallo(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
+                        break;
+                    case Tipo.Alfiere:
+                        new Alfiere(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
+                        break;
+                    case Tipo.Re:
+                        new Re(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
+                        break;
+                    case Tipo.Regina:
+                        new Regina(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            Mosse = ret.mosse;
+        }
+
         public Mossa MuoviPezzo(Pos da, Pos a)
         {
             Pezzo pezzo = Scacchiera.Where(q => q.Posizione != null && q.Posizione.Equals(da)).FirstOrDefault();
@@ -710,6 +759,29 @@ namespace Chess
         }
 
     }
+
+    public class PezzoWeb : Pezzo
+    {
+        public override List<Pos> MosseDisponibili(bool testScacco = true)
+            => new List<Pos>();
+
+    }
+
+    public class MossaWeb
+    {
+        public int num { get; set; }
+        public PezzoWeb pezzo { get; set; }
+        public Pos da { get; set; }
+        public Pos a { get; set; }
+        public PezzoWeb pezzoMangiato { get; set; }
+        public bool isArrocco { get; set; }
+        public bool isScacco { get; set; }
+        public bool isScaccoMatto { get; set; }
+        public string sMossa { get; set; }
+        public string sMossaOk { get; set; }
+
+    }
+
 
     public class Partita
     {
