@@ -54,7 +54,10 @@ namespace Chess.Controllers
             Chess chess = new Chess();
             Mossa mossa = null;
             if (numMosse == null)
+            {
                 scacchiera = Chess.GetScacchiera();
+                mossa = chess.GetMosse.LastOrDefault();
+            }
             else if (numMosse.Value > 0)
             {
                 mossa = chess.GetMosse.Where(q => q.num == numMosse.Value).FirstOrDefault();

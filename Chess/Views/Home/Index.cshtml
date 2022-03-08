@@ -17,8 +17,8 @@
         <div style="display: inline-block; ">
             <div style="margin-bottom:2px">
                 <div style="display: inline-block">
-                    <input type="radio" value="0" name="chturno" checked>
-                    <label>Bianco</label>
+                    <input id="chturnob" type="radio" value="0" name="chturno" checked>
+                    <label for="chturnob">Bianco</label>
                 </div>
                 <div style="display: inline-block">
                     <div class="turno turno0" colore="0" style="background-color: white; border-radius: 25px; border: 1px solid;width:25px;height:25px; margin-right: 10px"></div>
@@ -29,13 +29,14 @@
                     <div class="turno turno1" colore="1" style="background-color: black; border-radius: 25px; border: 1px solid; width:25px;height:25px; margin-left: 10px"></div>
                 </div>
                 <div style="display: inline-block">
-                    <input type="radio" value="1" name="chturno">
-                    <label>Nero</label>
+                    <input id="chturnon" type="radio" value="1" name="chturno">
+                    <label for="chturnon">Nero</label>
                 </div>
             </div>
 
             <div style="margin-bottom:10px; height: 15px">
                 <div id="attesaturno" style="display:none; color:red">In attesa della mossa dell'avversario</div>
+                <div id="attesaturnook" style="color:green">E' il tuo turno</div>
             </div>
 
             <div style="border: 1px solid;">
@@ -105,6 +106,7 @@
             var turno = GetTurno();
             if (turno != $('input[name="chturno"]:checked').val()) {
                 $("#attesaturno").show();
+                $("#attesaturnook").hide();
                 attesaturno = setInterval(VerificaTurno, 1000);
             }
             SottoScacco(null, null, 0);
@@ -116,51 +118,58 @@
                 var turno = GetTurno();
                 if (turno != $('input[name="chturno"]:checked').val()) {
                     $("#attesaturno").show();
+                    $("#attesaturnook").hide();
                     attesaturno = setInterval(VerificaTurno, 1000);
                 } else {
                     $("#attesaturno").hide();
+                    $("#attesaturnook").show();
                     clearInterval(attesaturno);
                     attesaturno = null;
                 }
+                InvertiScacchiera();
+                DisegnaScacchiera();
             });
 
-            $(".img").draggable({
-                revert: "invalid",
-                refreshPositions: true,
-                drag: function (event, ui) {
-                    ui.helper.addClass("draggable");
-                },
-                stop: function (event, ui) {
-                    ui.helper.removeClass("draggable");
-                    var image = this.src.split("/")[this.src.split("/").length - 1];
-                    if ($.ui.ddmanager.drop(ui.helper.data("draggable"), event)) {
+            //$(".img").draggable({
+            //    revert: "invalid",
+            //    refreshPositions: true,
+            //    drag: function (event, ui) {
+            //        ui.helper.addClass("draggable");
+            //    },
+            //    stop: function (event, ui) {
+            //        ui.helper.removeClass("draggable");
+            //        var image = this.src.split("/")[this.src.split("/").length - 1];
+            //        if ($.ui.ddmanager.drop(ui.helper.data("draggable"), event)) {
                         
-                    }
-                    else {
+            //        }
+            //        else {
                         
-                    }
-                }
-            });
+            //        }
+            //    }
+            //});
 
-            $(".divq").droppable({
-                drop: function (event, ui) {
-                    var initRiga = ui.draggable.parent().attr("posRiga");
-                    var initColonna = ui.draggable.parent().attr("posColonna");
-                    var finRiga = $(this).attr("posRiga");
-                    var finColonna = $(this).attr("posColonna");
+            //$(".divq").droppable({
+            //    drop: function (event, ui) {
+            //        var initRiga = ui.draggable.parent().attr("posRiga");
+            //        var initColonna = ui.draggable.parent().attr("posColonna");
+            //        var finRiga = $(this).attr("posRiga");
+            //        var finColonna = $(this).attr("posColonna");
 
-                    var op = MuoviPezzo(initRiga, initColonna, finRiga, finColonna);
-                    if (op == "") {
-                        SottoScacco(finRiga, finColonna);
-                    } else {
-                        DisegnaScacchiera();
-                    }
-                    ui.draggable.addClass("dropped");
-                }
-            });
+            //        var op = MuoviPezzo(initRiga, initColonna, finRiga, finColonna);
+            //        if (op == "") {
+            //            SottoScacco(finRiga, finColonna);
+            //        } else {
+            //            DisegnaScacchiera();
+            //        }
+            //        ui.draggable.addClass("dropped");
+            //    }
+            //});
 
             $(".divq").click(function (e) {
 
+                if (attesaturno != null) {
+                    return false;
+                }
                 if (e.ctrlKey) {
                     EliminaPezzo($(this).attr("posriga"), $(this).attr("poscolonna"));
                     SottoScacco($(this).attr("posriga"), $(this).attr("poscolonna"));
@@ -176,11 +185,18 @@
                     if (init == undefined) {
                         var pezzo = GetPezzo($(this).attr("posriga"), $(this).attr("poscolonna"));
                         if (pezzo != null) {
-                            if ($(".turnoattivo").length == 0 || pezzo != null && pezzo.colore == $(".turnoattivo").attr("colore")) {
-                                $(".divq").removeClass("selezionato");
-                                $(this).addClass("selezionato");
-                                MosseDisponibili($(this).attr("posriga"), $(this).attr("poscolonna"));
+                            //if ($(".turnoattivo").length == 0 || pezzo != null && pezzo.colore == $(".turnoattivo").attr("colore")) {
+                            //    $(".divq").removeClass("selezionato");
+                            //    $(this).addClass("selezionato");
+                            //    MosseDisponibili($(this).attr("posriga"), $(this).attr("poscolonna"));
+                            //}
+                            if (pezzo != null && pezzo.colore != $('input[name="chturno"]:checked').val()) {
+                                return false;
                             }
+                            $(".divq").removeClass("selezionato");
+                            $(this).addClass("selezionato");
+                            MosseDisponibili($(this).attr("posriga"), $(this).attr("poscolonna"));
+
                         }
                     } else if ($(init).hasClass("parcheggio")) {
                         InserisciPezzo($(init).attr("tipo"), $(init).attr("colore"), $(this).attr("posriga"), $(this).attr("poscolonna"));
@@ -410,6 +426,7 @@
                     $(".pos" + data.mossa.da.riga + "-" + data.mossa.da.colonna).addClass("pallinoverde");
                     $(".pos" + data.mossa.a.riga + "-" + data.mossa.a.colonna).addClass("pallinoverde");
                     $("#attesaturno").show();
+                    $("#attesaturnook").hide();
                     attesaturno = setInterval(VerificaTurno, 1000);
 
                     ret = data.op;
@@ -454,7 +471,11 @@
                 success: function (data) {
                     if (data != null) {
                         DisegnaPezziInScacchiera(data.scacchiera);
+                        DisegnaMosse(data.mosse);
+                        $(".pos" + data.mossa.da.riga + "-" + data.mossa.da.colonna).addClass("pallinoverde");
+                        $(".pos" + data.mossa.a.riga + "-" + data.mossa.a.colonna).addClass("pallinoverde");
                         $("#attesaturno").hide();
+                        $("#attesaturnook").show();
                         clearInterval(attesaturno);
                         attesaturno = null;
                     }
@@ -537,7 +558,7 @@
                 if (cont % 2 != 0) {
                     $("#boxmosseOk").append("<div class='divboxmossa'>" + ((cont + 1) / 2) + ".</div>");
                 }
-                $("#boxmosseOk").append("<div class='divboxmossa divmossa' value='" + item.num + "'>" + item.sMossa + "</div></a>");
+                $("#boxmosseOk").append("<div class='divboxmossa divmossa' value='" + item.num + "'>" + item.sMossaOk + "</div></a>");
                 max = item.num;
             });
             $("#boxmosseOk").children(".divmossa").last().addClass("selected");
@@ -589,6 +610,17 @@
             });
         }
 
-
+        function InvertiScacchiera() {
+            $(".divq").each(function (item) {
+                var riga = parseInt($(this).attr("posriga"));
+                var colonna = $(this).attr("poscolonna");
+                var newriga = 9 - riga;
+                $(this).removeClass("pos" + riga + "-" + colonna).addClass("pos" + newriga + "-" + colonna).attr("posriga", newriga);
+                var num = $(this).children(".numriga");
+                if (num != undefined) {
+                    num.html(newriga);
+                }
+            });
+        }
 
     </script>

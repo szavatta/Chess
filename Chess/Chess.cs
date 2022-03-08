@@ -316,26 +316,28 @@ namespace Chess
             switch (pezzo.Tipo)
             {
                 case Tipo.Pedone:
-                    ret = new Pedone(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    ret = new Pedone();
                     break;
                 case Tipo.Torre:
-                    ret = new Torre(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    ret = new Torre();
                     break;
                 case Tipo.Cavallo:
-                    ret = new Cavallo(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    ret = new Cavallo();
                     break;
                 case Tipo.Alfiere:
-                    ret = new Alfiere(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    ret = new Alfiere();
                     break;
                 case Tipo.Re:
-                    ret = new Re(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    ret = new Re();
                     break;
                 case Tipo.Regina:
-                    ret = new Regina(pezzo.Posizione.Riga, pezzo.Posizione.Colonna, pezzo.Colore);
+                    ret = new Regina();
                     break;
                 default:
                     break;
             }
+            ret.Colore = pezzo.Colore;
+            ret.Posizione = pezzo.Posizione;
 
             return ret;
         }
@@ -924,6 +926,12 @@ namespace Chess
 
     public class Torre : Pezzo
     {
+        public Torre() 
+        {
+            Tipo = Tipo.Torre;
+            Lettera = "R";
+        }
+
         public Torre(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
         {
             Posizione = new Pos(posRiga,posColonna);
@@ -983,6 +991,12 @@ namespace Chess
 
     public class Cavallo : Pezzo
     {
+        public Cavallo() 
+        {
+            Tipo = Tipo.Cavallo;
+            Lettera = "N";
+        }
+
         public Cavallo(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
         {
             Posizione = new Pos(posRiga, posColonna);
@@ -1038,6 +1052,12 @@ namespace Chess
 
     public class Alfiere : Pezzo
     {
+        public Alfiere() 
+        {
+            Tipo = Tipo.Alfiere;
+            Lettera = "B";
+        }
+
         public Alfiere(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
         {
             Posizione = new Pos(posRiga, posColonna);
@@ -1098,6 +1118,12 @@ namespace Chess
 
     public class Regina : Pezzo
     {
+        public Regina() 
+        {
+            Tipo = Tipo.Regina;
+            Lettera = "Q";
+        }
+
         public Regina(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
         {
             Posizione = new Pos(posRiga, posColonna);
@@ -1119,6 +1145,12 @@ namespace Chess
 
     public class Re : Pezzo
     {
+        public Re() 
+        {
+            Tipo = Tipo.Re;
+            Lettera = "K";
+        }
+
         public Re(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
         {
             Posizione = new Pos(posRiga, posColonna);
@@ -1273,6 +1305,12 @@ namespace Chess
     public class Pedone : Pezzo
     {
         public bool EnPassant { get; set; }
+
+        public Pedone() 
+        {
+            Tipo = Tipo.Pedone;
+            Lettera = "";
+        }
 
         public Pedone(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
         {
