@@ -67,7 +67,7 @@
 
         @for (int ii = 0; ii < 2; ii++)
         {
-            <div style="border: 1px solid; display: inline-block; background-color: black">
+            <div style="border: 1px solid; display: inline-block; background-color: black; display: none">
                 @for (int i = 0; i < 6; i++)
                 {
                     <div class="divq parcheggio" tipo="@i" colore="@ii" style="background-color: white">
@@ -619,6 +619,13 @@
                 var num = $(this).children(".numriga");
                 if (num != undefined) {
                     num.html(newriga);
+                }
+                if ($(this).css("background-color") == "rgb(255, 255, 255)") {
+                    $(this).css("background-color", "rgb(0, 0, 0)")
+                    num.css("color", "white");
+                } else {
+                    $(this).css("background-color", "rgb(255, 255, 255)")
+                    num.css("color", "black");
                 }
             });
         }
