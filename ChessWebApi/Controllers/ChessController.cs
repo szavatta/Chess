@@ -79,7 +79,7 @@ namespace ChessWebApi.Controllers
             }
             catch(Exception ex)
             {
-                throw new System.Web.Http.HttpResponseException(new HttpResponseMessage(HttpStatusCode.NotAcceptable));
+                throw ex;
             }
 
             return new ApiScacchiera { scacchiera = Chess.Chess.GetScacchiera(), mosse = chess.GetMosse };
