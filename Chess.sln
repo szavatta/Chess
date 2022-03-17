@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess", "Chess\Chess.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessTests", "ChessTests\ChessTests.csproj", "{DB0D2190-B1AD-40ED-9DE8-06C658723392}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessWebApi", "ChessWebApi\ChessWebApi.csproj", "{16A1FDA1-DB5D-4219-B35B-76F5F41DD800}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChessWebApi", "ChessWebApi\ChessWebApi.csproj", "{16A1FDA1-DB5D-4219-B35B-76F5F41DD800}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
