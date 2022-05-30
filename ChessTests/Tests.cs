@@ -1843,4 +1843,26 @@ Bg5+ {[% clk 0:00:01]}
 
     }
 
+    [TestClass()]
+    public class FenTests
+    {
+        [TestMethod()]
+        public void Posizione_iniziale()
+        {
+            string fen1 = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+            Chess chess = new Chess();
+            chess.InitialPosition();
+            //var pedone = ;
+            //bool ret = alfiere.Mossa(new Pos { Riga = 7, Colonna = 7 }) != null;
+
+            string fen2 = chess.GetScacchieraFen(chess.GetMosse);
+            
+            Assert.AreEqual(fen1, fen2);
+        }
+
+   
+
+    }
+
+
 }

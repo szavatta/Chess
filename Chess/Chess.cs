@@ -81,6 +81,42 @@ namespace Chess
             return scacchiera;
         }
 
+        public string GetScacchieraFen(List<Mossa> mosse = null, Colore turno = Colore.Bianco)
+        {
+            string ret = "";
+
+            List<Pezzo> scacchiera = mosse.Count > 0 ? mosse.LastOrDefault().scacchiera : null;
+            if (scacchiera == null)
+                scacchiera = new Chess().GetScacchieraInizale();
+
+            for (int i = 8; i >= 1; i--)
+            {
+                int colprec = 0;
+                foreach (Pezzo pezzo in scacchiera.Where(q => q.Posizione.Riga == i).OrderBy(q => q.Posizione.Colonna))
+                {
+                    if (pezzo.Posizione.Colonna > colprec + 1)
+                        ret += pezzo.Posizione.Colonna - colprec;
+                    ret += pezzo.Colore == Colore.Bianco ? pezzo.LetteraFen.ToUpper() : pezzo.LetteraFen.ToLower();
+                    colprec = pezzo.Posizione.Colonna;
+                }
+                if (colprec < 7)
+                    ret += 8 - colprec;
+
+                ret += i > 1 ? "/" : "";
+            }
+
+            ret += " " + (turno == Colore.Bianco ? "w" : "b"); //turno
+
+            ret += " " + "KQkq"; //arrocco ?? 
+            ret += " " + "-"; //en passant
+            ret += " " + "0"; //semimosse
+
+            int nummosse = mosse.Count / 2 + 1;
+            ret += " " + nummosse; //mosse
+
+            return ret;
+        }
+
         public string GetScacchieraString(List<Pezzo> scacchiera = null)
         {
             string ret = "╔═══╦═══╦═══╦═══╦═══╦═══╦═══╦═══╗\r\n";
@@ -613,6 +649,7 @@ namespace Chess
         public Tipo Tipo { get; set; }
         public int NumMosse { get; set; }
         public string Lettera { get; set; }
+        public string LetteraFen { get; set; }
 
 
         abstract public List<Pos> MosseDisponibili(bool testScacco = true);
@@ -930,6 +967,7 @@ namespace Chess
         {
             Tipo = Tipo.Torre;
             Lettera = "R";
+            LetteraFen = "R";
         }
 
         public Torre(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
@@ -938,6 +976,7 @@ namespace Chess
             Colore = colore;
             Tipo = Tipo.Torre;
             Lettera = "R";
+            LetteraFen = "R";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -995,6 +1034,7 @@ namespace Chess
         {
             Tipo = Tipo.Cavallo;
             Lettera = "N";
+            LetteraFen = "N";
         }
 
         public Cavallo(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
@@ -1003,6 +1043,7 @@ namespace Chess
             Colore = colore;
             Tipo = Tipo.Cavallo;
             Lettera = "N";
+            LetteraFen = "N";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -1056,6 +1097,7 @@ namespace Chess
         {
             Tipo = Tipo.Alfiere;
             Lettera = "B";
+            LetteraFen = "B";
         }
 
         public Alfiere(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
@@ -1064,6 +1106,7 @@ namespace Chess
             Colore = colore;
             Tipo = Tipo.Alfiere;
             Lettera = "B";
+            LetteraFen = "B";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -1122,6 +1165,7 @@ namespace Chess
         {
             Tipo = Tipo.Regina;
             Lettera = "Q";
+            LetteraFen = "Q";
         }
 
         public Regina(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
@@ -1130,6 +1174,7 @@ namespace Chess
             Colore = colore;
             Tipo = Tipo.Regina;
             Lettera = "Q";
+            LetteraFen = "Q";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -1149,6 +1194,7 @@ namespace Chess
         {
             Tipo = Tipo.Re;
             Lettera = "K";
+            LetteraFen = "K";
         }
 
         public Re(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
@@ -1157,6 +1203,7 @@ namespace Chess
             Colore = colore;
             Tipo = Tipo.Re;
             Lettera = "K";
+            LetteraFen = "K";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
@@ -1310,6 +1357,7 @@ namespace Chess
         {
             Tipo = Tipo.Pedone;
             Lettera = "";
+            LetteraFen = "P";
         }
 
         public Pedone(int posRiga, int posColonna, Colore colore, bool aggiungeScacchiera = false)
@@ -1318,6 +1366,7 @@ namespace Chess
             Colore = colore;
             Tipo = Tipo.Pedone;
             Lettera = "";
+            LetteraFen = "P";
             if (aggiungeScacchiera)
                 Chess.AggiungePezzo(this);
         }
